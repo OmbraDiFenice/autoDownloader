@@ -1,5 +1,5 @@
 import unittest
-from caches import FileCache
+from caches import FileCache, NullCache
 import os
 
 
@@ -60,6 +60,18 @@ class TestFileCache(unittest.TestCase):
     def store_elements_in_cache(self, cache, new_lines):
         for line in new_lines:
             cache.store(line)
+
+
+class TestNullCache(unittest.TestCase):
+    def setUp(self):
+        self.cache = NullCache()
+
+    def test_is_created_empty(self):
+        self.assertEqual(len(self.cache), 0)
+
+    def test_is_always_empty(self):
+        self.cache.store("element")
+        self.assertEqual(len(self.cache), 0)
 
 
 if __name__ == '__main__':

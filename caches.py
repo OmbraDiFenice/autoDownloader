@@ -5,6 +5,23 @@ class Cache:
     pass
 
 
+class NullCache(Cache):
+    def store(self, element):
+        pass
+
+    def clear(self):
+        pass
+
+    def save(self):
+        pass
+
+    def __len__(self):
+        return 0
+
+    def __iter__(self):
+        return [].__iter__()
+
+
 class FileCache(Cache):
     def __init__(self, path):
         self._list = []
