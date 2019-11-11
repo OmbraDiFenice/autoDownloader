@@ -34,3 +34,5 @@ class Item:
         urls_to_download = self._filter_urls_in_cache(urls)
         for url in urls_to_download:
             self.downloader.download(url, self.dest_dir)
+            self.cache.store(url)
+        self.cache.save()
