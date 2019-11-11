@@ -12,6 +12,8 @@ class RssProvider:
         self.url_xpath = spec.get("xpaths", {}).get("url", "")
         self.title_xpath = spec.get("xpaths", {}).get("title", "")
         self.patterns = spec.get("patterns", [".*"])
+        if not self.patterns:
+            self.patterns = [".*"]
         self.dest_dir = spec.get("dest_dir", ".")
 
         self.cache = cache

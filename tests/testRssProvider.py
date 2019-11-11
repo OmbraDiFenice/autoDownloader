@@ -14,45 +14,65 @@ def get_standard_xml():
 
 
 class TestRssProvider(unittest.TestCase):
-    def test_create_provider(self):
-        spec = {
+    def setUp(self):
+        self.spec = {
             "type": "rss",
-            "url": "",
-            "xpaths": {
-                "items": "//item",
-                "url": "//url",
-                "title": "//title"
-            },
-            "namespaces": {},
-            "patterns": [],
-            "dest_dir": "download/dir"
-        }
-        provider = create_provider(spec)
-
-        self.assertEqual(provider.url, spec["url"])
-        self.assertEqual(provider.namespaces, spec["namespaces"])
-        self.assertEqual(provider.items_xpath, spec["xpaths"]["items"])
-        self.assertEqual(provider.url_xpath, spec["xpaths"]["url"])
-        self.assertEqual(provider.title_xpath, spec["xpaths"]["title"])
-        self.assertEqual(provider.patterns, spec["patterns"])
-        self.assertEqual(provider.dest_dir, spec["dest_dir"])
-
-    @patch("requests.get", return_value=get_standard_xml())
-    def test_get_urls_with_empty_cache_and_default_pattern(self, mock):
-        spec = {
-            "type": "rss",
-            "url": "",
+            "url": "http://something/feed.xml",
             "xpaths": {
                 "items": "//item",
                 "url": "//enclosure/@url",
                 "title": "//title"
             },
-            "namespaces": {}
+            "namespaces": {},
+            "patterns": ["some_regex"],
+            "dest_dir": "download/dir"
         }
-        provider = create_provider(spec)
+
+    def assert_url_list_matches(self, urls, expected_urls):
+        urls.sort()
+        expected_urls.sort()
+        self.assertEqual(urls, expected_urls)
+
+    def test_default_parameters(self):
+        minimal_spec = {
+            "type": "rss",
+            "url": "http://something/feed.xml",
+            "xpaths": {
+                "items": "//item",
+                "url": "//enclosure/@url",
+                "title": "//title"
+            }
+        }
+        provider = create_provider(minimal_spec)
+
+        self.assertEqual(provider.namespaces, {})
+        self.assertEqual(provider.patterns, [".*"])
+        self.assertEqual(provider.dest_dir, ".")
+
+    def test_empty_pattern_list_defaults_to_match_all(self):
+        self.spec["patterns"] = []
+        provider = create_provider(self.spec)
+
+        self.assertEqual(provider.patterns, [".*"])
+
+    def test_create_provider(self):
+        provider = create_provider(self.spec)
+
+        self.assertEqual(provider.url, self.spec["url"])
+        self.assertEqual(provider.namespaces, self.spec["namespaces"])
+        self.assertEqual(provider.items_xpath, self.spec["xpaths"]["items"])
+        self.assertEqual(provider.url_xpath, self.spec["xpaths"]["url"])
+        self.assertEqual(provider.title_xpath, self.spec["xpaths"]["title"])
+        self.assertEqual(provider.patterns, self.spec["patterns"])
+        self.assertEqual(provider.dest_dir, self.spec["dest_dir"])
+
+    @patch("requests.get", return_value=get_standard_xml())
+    def test_get_urls_with_empty_cache_and_default_pattern(self, get_mock):
+        self.spec.pop("patterns")
+        provider = create_provider(self.spec)
+
         urls = provider.get_urls()
 
-        mock.assert_called_once()
         expected_urls = [
             "https://fixtures/removable.torrent",
             "https://madness/rome.torrent",
@@ -105,24 +125,14 @@ class TestRssProvider(unittest.TestCase):
             "https://specifically/thumbnails.torrent",
             "https://millennium/findings.torrent",
         ]
-        self.assertEqual(urls, expected_urls)
+        get_mock.assert_called_once()
+        self.assert_url_list_matches(urls, expected_urls)
 
     @patch("requests.get", return_value=get_standard_xml())
-    def test_get_urls_with_empty_cache_and_pattern(self, mock):
-        spec = {
-            "type": "rss",
-            "url": "",
-            "xpaths": {
-                "items": "//item",
-                "url": "//enclosure/@url",
-                "title": "//title"
-            },
-            "namespaces": {},
-            "patterns": [
-                "cedar"
-            ]
-        }
-        provider = create_provider(spec)
+    def test_get_urls_with_empty_cache_and_pattern(self, get_mock):
+        self.spec["patterns"] = ["cedar"]
+        provider = create_provider(self.spec)
+
         urls = provider.get_urls()
 
         expected_urls = [
@@ -130,36 +140,23 @@ class TestRssProvider(unittest.TestCase):
             "https://give/hello.torrent",
             "https://processed/robots.torrent",
         ]
-        urls.sort()
-        expected_urls.sort()
-        self.assertEqual(urls, expected_urls)
+        get_mock.assert_called_once()
+        self.assert_url_list_matches(urls, expected_urls)
 
     @patch("requests.get", return_value=get_standard_xml())
-    def test_get_urls_with_cached_entries_and_pattern(self, mock):
-        spec = {
-            "type": "rss",
-            "url": "",
-            "xpaths": {
-                "items": "//item",
-                "url": "//enclosure/@url",
-                "title": "//title"
-            },
-            "namespaces": {},
-            "patterns": [
-                "cedar"
-            ]
-        }
+    def test_get_urls_with_cached_entries_and_pattern(self, get_mock):
+        self.spec["patterns"] = ["cedar"]
         cache = FileCache("tests/data/providers/rss/sample_cache")
-        provider = create_provider(spec, cache=cache)
+        provider = create_provider(self.spec, cache=cache)
+
         urls = provider.get_urls()
 
         expected_urls = [
             "https://give/hello.torrent",
             "https://processed/robots.torrent",
         ]
-        urls.sort()
-        expected_urls.sort()
-        self.assertEqual(urls, expected_urls)
+        get_mock.assert_called_once()
+        self.assert_url_list_matches(urls, expected_urls)
 
 
 if __name__ == '__main__':
