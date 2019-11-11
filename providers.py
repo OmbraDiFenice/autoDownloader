@@ -12,7 +12,7 @@ class AbstractProvider(metaclass=ABCMeta):
 
 
 class RssProvider(AbstractProvider):
-    def __init__(self, spec, cache=NullCache()):
+    def __init__(self, spec):
         self.url = spec.get("url")
         self.namespaces = spec.get("namespaces", {})
         self.items_xpath = spec.get("xpaths", {}).get("items", "")
@@ -21,9 +21,6 @@ class RssProvider(AbstractProvider):
         self.patterns = spec.get("patterns", [".*"])
         if not self.patterns:
             self.patterns = [".*"]
-        self.dest_dir = spec.get("dest_dir", ".")
-
-        self.cache = cache
 
     def _get_xml(self):
         headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64)'}
@@ -62,9 +59,6 @@ class RssProvider(AbstractProvider):
     def _filter_items_by_title(self, items):
         return [item for item in items if self._match_item_title(item)]
 
-    def _filter_urls_in_cache(self, items):
-        return [item for item in items if item not in self.cache]
-
     def _get_url_list_from_item_list(self, items):
         return [self._extract_url(item) for item in items]
 
@@ -73,7 +67,6 @@ class RssProvider(AbstractProvider):
         result = self._get_item_list(root)
         result = self._filter_items_by_title(result)
         result = self._get_url_list_from_item_list(result)
-        result = self._filter_urls_in_cache(result)
         return result
 
 

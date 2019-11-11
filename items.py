@@ -25,3 +25,12 @@ class Item:
         cache_factory = Factory("caches")
         cache_spec = config["cache"]
         return cache_factory.create(cache_spec)
+
+    def _filter_urls_in_cache(self, urls):
+        return [url for url in urls if url not in self.cache]
+
+    def download_new_elements(self):
+        urls = self.provider.get_urls()
+        urls_to_download = self._filter_urls_in_cache(urls)
+        for url in urls_to_download:
+            self.downloader.download(url, self.dest_dir)

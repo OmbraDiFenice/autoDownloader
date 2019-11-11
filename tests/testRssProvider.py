@@ -47,7 +47,6 @@ class TestRssProvider(unittest.TestCase):
 
         self.assertEqual(provider.namespaces, {})
         self.assertEqual(provider.patterns, [".*"])
-        self.assertEqual(provider.dest_dir, ".")
 
     def test_empty_pattern_list_defaults_to_match_all(self):
         self.spec["patterns"] = []
@@ -64,10 +63,9 @@ class TestRssProvider(unittest.TestCase):
         self.assertEqual(provider.url_xpath, self.spec["xpaths"]["url"])
         self.assertEqual(provider.title_xpath, self.spec["xpaths"]["title"])
         self.assertEqual(provider.patterns, self.spec["patterns"])
-        self.assertEqual(provider.dest_dir, self.spec["dest_dir"])
 
     @patch("requests.get", return_value=get_standard_xml())
-    def test_get_urls_with_empty_cache_and_default_pattern(self, get_mock):
+    def test_get_urls_with_default_pattern(self, get_mock):
         self.spec.pop("patterns")
         provider = RssProvider(self.spec)
 
@@ -129,7 +127,7 @@ class TestRssProvider(unittest.TestCase):
         self.assert_url_list_matches(urls, expected_urls)
 
     @patch("requests.get", return_value=get_standard_xml())
-    def test_get_urls_with_empty_cache_and_pattern(self, get_mock):
+    def test_get_urls_with_custom_pattern(self, get_mock):
         self.spec["patterns"] = ["cedar"]
         provider = RssProvider(self.spec)
 
@@ -137,24 +135,6 @@ class TestRssProvider(unittest.TestCase):
 
         expected_urls = [
             "https://forbidden/describe.torrent",
-            "https://give/hello.torrent",
-            "https://processed/robots.torrent",
-        ]
-        get_mock.assert_called_once()
-        self.assert_url_list_matches(urls, expected_urls)
-
-    @patch("requests.get", return_value=get_standard_xml())
-    def test_get_urls_with_cached_entries_and_pattern(self, get_mock):
-        self.spec["patterns"] = ["cedar"]
-        file_cache_spec = {
-            "path": "tests/data/providers/rss/sample_cache"
-        }
-        cache = FileCache(file_cache_spec)
-        provider = RssProvider(self.spec, cache=cache)
-
-        urls = provider.get_urls()
-
-        expected_urls = [
             "https://give/hello.torrent",
             "https://processed/robots.torrent",
         ]
