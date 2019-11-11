@@ -1,0 +1,23 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "required": [
+    "type",
+    "host"
+  ],
+  "properties": {
+    "type": {
+      "$id": "#/properties/type",
+      "type": "string",
+      "enum": [
+        "TorrentDownloader"
+      ]
+    },
+    "host": {
+      "$id": "#/properties/host",
+      "type": "string"
+    }
+  }
+}

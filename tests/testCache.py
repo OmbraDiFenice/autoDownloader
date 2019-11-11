@@ -6,9 +6,11 @@ from caches import FileCache, NullCache
 
 class TestFileCache(unittest.TestCase):
     spec_temp_file = {
+        "type": "FileCache",
         "path": "test_file_cache"
     }
     spec_file_with_data = {
+        "type": "FileCache",
         "path": os.path.join("tests", "data", "file_cache_with_data")
     }
 
