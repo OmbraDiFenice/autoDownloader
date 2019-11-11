@@ -1,8 +1,7 @@
 from abc import ABCMeta, abstractmethod
 import requests
-import xml.etree.ElementTree as ET
+import xml.etree.ElementTree as ElementTree
 import re
-from caches import NullCache
 
 
 class AbstractProvider(metaclass=ABCMeta):
@@ -29,7 +28,7 @@ class RssProvider(AbstractProvider):
 
     def _get_xml_root_node(self):
         xml = self._get_xml()
-        return ET.fromstring(xml)
+        return ElementTree.fromstring(xml)
 
     def _match_xpath(self, root, xpath):
         xpath = xpath if xpath.startswith(".") else "." + xpath

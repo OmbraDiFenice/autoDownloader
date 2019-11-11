@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch, call
-from tests.testRssProvider import get_standard_xml
+from tests.utils import get_standard_xml
 import caches
 import downloaders
 import providers
@@ -46,7 +46,7 @@ class TestItem(unittest.TestCase):
     @patch("requests.get", return_value=get_standard_xml())
     @patch("downloaders.TorrentDownloader")
     @patch("socket.socket")
-    def test_download_new_elements_dont_download_those_in_cache(self, mock_socket, mock_downloader, mock_get):
+    def test_download_new_elements_dont_download_those_in_cache(self, mock_socket, mock_downloader, _):
         self.item.downloader = mock_downloader
         mock_socket.return_value.recv.return_value = b''
 

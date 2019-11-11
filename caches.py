@@ -3,9 +3,6 @@ from abc import ABCMeta, abstractmethod
 
 
 class AbstractCache(metaclass=ABCMeta):
-    def __init__(self, spec):
-        pass
-
     @abstractmethod
     def store(self, element):
         pass
@@ -28,8 +25,8 @@ class AbstractCache(metaclass=ABCMeta):
 
 
 class NullCache(AbstractCache):
-    def __init__(self, spec=None):
-        super().__init__(spec)
+    def __init__(self, *args, **kwargs):
+        pass
 
     def store(self, element):
         pass
@@ -49,7 +46,6 @@ class NullCache(AbstractCache):
 
 class FileCache(AbstractCache):
     def __init__(self, spec):
-        super().__init__(spec)
         self._list = []
         self.path = spec["path"]
         self._load()
