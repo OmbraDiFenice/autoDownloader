@@ -37,7 +37,7 @@ class TestTorrentDownloader(unittest.TestCase):
     @unittest.skipIf(platform.system() == "Windows", "Unix sockets not available on Windows")
     @patch("socket.socket")
     def test_call_unix_socket(self, mock_socket):
-        mock_socket.return_value.recv.side_effect = ['ok', '']
+        mock_socket.return_value.recv.side_effect = [b'ok', b'']
 
         url = "http://test.url.com/file.torrent"
         dest = "tests/data/downloaders/dest_folder"
