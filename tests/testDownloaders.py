@@ -15,7 +15,7 @@ class TestTorrentDownloader(unittest.TestCase):
 
     @patch("socket.socket")
     def test_call_tcp_socket(self, mock_socket):
-        mock_socket.return_value.recv.side_effect = ['ok', '']
+        mock_socket.return_value.recv.side_effect = [b'ok', b'']
 
         url = "http://test.url.com/file.torrent"
         dest = "tests/data/downloaders/dest_folder"
@@ -47,7 +47,8 @@ class TestTorrentDownloader(unittest.TestCase):
         data = xmlrpc.client.dumps(params[1:], methodname=method)
         header = "CONTENT_LENGTH\x00{}\x00SCGI\x001\x00".format(len(data))
         expected_message = "{}:{},{}".format(len(header), header, data)
-        mock_socket.return_value.send.assert_called_once_with(expected_message)
+        encoded_expected_message = expected_message.encode("utf-8")
+        mock_socket.return_value.send.assert_called_once_with(encoded_expected_message)
 
 
 if __name__ == '__main__':
