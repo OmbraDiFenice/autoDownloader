@@ -1,6 +1,6 @@
 import platform
 import unittest
-from unittest.mock import patch, Mock
+from unittest.mock import patch
 from downloaders import TorrentDownloader
 import xmlrpc.client
 
@@ -23,7 +23,7 @@ class TestTorrentDownloader(unittest.TestCase):
         tcp_downloader = TorrentDownloader("http://192.168.1.50:80")
         tcp_downloader.download(url, dest)
 
-        self.assert_use_socket_for_correct_xmlrpc(mock_socket, ("192.168.1.50", 80), url, dest)
+        self.assert_xmlrpc_request_was_correct(mock_socket, ("192.168.1.50", 80), url, dest)
 
     @unittest.skipIf(platform.system() == "Windows", "Unix sockets not available on Windows")
     @patch("socket.socket")
@@ -36,9 +36,10 @@ class TestTorrentDownloader(unittest.TestCase):
         tcp_downloader = TorrentDownloader("/tmp/rtorrent/rtorrent.sock")
         tcp_downloader.download(url, dest)
 
-        self.assert_use_socket_for_correct_xmlrpc(mock_socket, "/tmp/rtorrent/rtorrent.sock", url, dest)
+        self.assert_xmlrpc_request_was_correct(mock_socket, "/tmp/rtorrent/rtorrent.sock", url, dest)
 
-    def assert_use_socket_for_correct_xmlrpc(self, mock_socket, host, url, dest):
+    @staticmethod
+    def assert_xmlrpc_request_was_correct(mock_socket, host, url, dest):
         mock_socket.return_value.connect.assert_called_once_with(host)
         mock_socket.return_value.close.assert_called_once()
         method = "load.start"
