@@ -78,19 +78,8 @@ class RssProvider(AbstractProvider):
 
 
 class HtmlProvider(AbstractProvider):
-    def get_urls(self):
+    def __init__(self, spec):
         pass
 
-
-def create_provider(specs, cache=NullCache()):
-    if "type" not in specs.keys():
-        raise ProviderFactoryError("Unable to create provider: type not defined")
-    if specs.get("type") == "rss":
-        return RssProvider(specs, cache=cache)
-    if specs.get("type") == "html":
-        return HtmlProvider()
-    raise ProviderFactoryError("Unable to create provider: type '{}' not known".format(specs.get("type")))
-
-
-class ProviderFactoryError(Exception):
-    pass
+    def get_urls(self):
+        pass

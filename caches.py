@@ -1,11 +1,36 @@
 import os
+from abc import ABCMeta, abstractmethod
 
 
-class Cache:
-    pass
+class AbstractCache(metaclass=ABCMeta):
+    def __init__(self, spec):
+        pass
+
+    @abstractmethod
+    def store(self, element):
+        pass
+
+    @abstractmethod
+    def clear(self):
+        pass
+
+    @abstractmethod
+    def save(self):
+        pass
+
+    @abstractmethod
+    def __len__(self):
+        pass
+
+    @abstractmethod
+    def __iter__(self):
+        pass
 
 
-class NullCache(Cache):
+class NullCache(AbstractCache):
+    def __init__(self, spec=None):
+        super().__init__(spec)
+
     def store(self, element):
         pass
 
@@ -22,10 +47,11 @@ class NullCache(Cache):
         return [].__iter__()
 
 
-class FileCache(Cache):
-    def __init__(self, path):
+class FileCache(AbstractCache):
+    def __init__(self, spec):
+        super().__init__(spec)
         self._list = []
-        self.path = path
+        self.path = spec["path"]
         self._load()
 
     def _load(self):

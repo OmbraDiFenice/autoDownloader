@@ -9,8 +9,8 @@ class AbstractDownloader(metaclass=ABCMeta):
 
 
 class TorrentDownloader(AbstractDownloader):
-    def __init__(self, host):
-        self.host = host
+    def __init__(self, spec):
+        self.host = spec["host"]
 
     def download(self, url, dest_dir):
         method = "load.start"

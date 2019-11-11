@@ -1,8 +1,8 @@
 import unittest
 from unittest.mock import patch
-from providers import create_provider
 import requests
 from caches import FileCache
+from providers import RssProvider
 
 
 def get_standard_xml():
@@ -43,7 +43,7 @@ class TestRssProvider(unittest.TestCase):
                 "title": "//title"
             }
         }
-        provider = create_provider(minimal_spec)
+        provider = RssProvider(minimal_spec)
 
         self.assertEqual(provider.namespaces, {})
         self.assertEqual(provider.patterns, [".*"])
@@ -51,12 +51,12 @@ class TestRssProvider(unittest.TestCase):
 
     def test_empty_pattern_list_defaults_to_match_all(self):
         self.spec["patterns"] = []
-        provider = create_provider(self.spec)
+        provider = RssProvider(self.spec)
 
         self.assertEqual(provider.patterns, [".*"])
 
     def test_create_provider(self):
-        provider = create_provider(self.spec)
+        provider = RssProvider(self.spec)
 
         self.assertEqual(provider.url, self.spec["url"])
         self.assertEqual(provider.namespaces, self.spec["namespaces"])
@@ -69,7 +69,7 @@ class TestRssProvider(unittest.TestCase):
     @patch("requests.get", return_value=get_standard_xml())
     def test_get_urls_with_empty_cache_and_default_pattern(self, get_mock):
         self.spec.pop("patterns")
-        provider = create_provider(self.spec)
+        provider = RssProvider(self.spec)
 
         urls = provider.get_urls()
 
@@ -131,7 +131,7 @@ class TestRssProvider(unittest.TestCase):
     @patch("requests.get", return_value=get_standard_xml())
     def test_get_urls_with_empty_cache_and_pattern(self, get_mock):
         self.spec["patterns"] = ["cedar"]
-        provider = create_provider(self.spec)
+        provider = RssProvider(self.spec)
 
         urls = provider.get_urls()
 
@@ -146,8 +146,11 @@ class TestRssProvider(unittest.TestCase):
     @patch("requests.get", return_value=get_standard_xml())
     def test_get_urls_with_cached_entries_and_pattern(self, get_mock):
         self.spec["patterns"] = ["cedar"]
-        cache = FileCache("tests/data/providers/rss/sample_cache")
-        provider = create_provider(self.spec, cache=cache)
+        file_cache_spec = {
+            "path": "tests/data/providers/rss/sample_cache"
+        }
+        cache = FileCache(file_cache_spec)
+        provider = RssProvider(self.spec, cache=cache)
 
         urls = provider.get_urls()
 

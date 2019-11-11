@@ -7,10 +7,16 @@ import xmlrpc.client
 
 class TestTorrentDownloader(unittest.TestCase):
     def test_init_parameter(self):
-        tcp_downloader = TorrentDownloader("http://192.168.1.50:80")
+        spec_tcp = {
+            "host": "http://192.168.1.50:80"
+        }
+        tcp_downloader = TorrentDownloader(spec_tcp)
         self.assertEqual(tcp_downloader.host, "http://192.168.1.50:80")
 
-        unix_downloader = TorrentDownloader("/tmp/rtorrent/rtorrent.sock")
+        spec_unix = {
+            "host": "/tmp/rtorrent/rtorrent.sock"
+        }
+        unix_downloader = TorrentDownloader(spec_unix)
         self.assertEqual(unix_downloader.host, "/tmp/rtorrent/rtorrent.sock")
 
     @patch("socket.socket")
@@ -20,7 +26,10 @@ class TestTorrentDownloader(unittest.TestCase):
         url = "http://test.url.com/file.torrent"
         dest = "tests/data/downloaders/dest_folder"
 
-        tcp_downloader = TorrentDownloader("http://192.168.1.50:80")
+        spec = {
+            "host": "http://192.168.1.50:80"
+        }
+        tcp_downloader = TorrentDownloader(spec)
         tcp_downloader.download(url, dest)
 
         self.assert_xmlrpc_request_was_correct(mock_socket, ("192.168.1.50", 80), url, dest)
@@ -33,7 +42,10 @@ class TestTorrentDownloader(unittest.TestCase):
         url = "http://test.url.com/file.torrent"
         dest = "tests/data/downloaders/dest_folder"
 
-        tcp_downloader = TorrentDownloader("/tmp/rtorrent/rtorrent.sock")
+        spec = {
+            "host": "/tmp/rtorrent/rtorrent.sock"
+        }
+        tcp_downloader = TorrentDownloader(spec)
         tcp_downloader.download(url, dest)
 
         self.assert_xmlrpc_request_was_correct(mock_socket, "/tmp/rtorrent/rtorrent.sock", url, dest)
