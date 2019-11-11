@@ -1,10 +1,17 @@
+from abc import ABCMeta, abstractmethod
 import requests
 import xml.etree.ElementTree as ET
 import re
 from caches import NullCache
 
 
-class RssProvider:
+class AbstractProvider(metaclass=ABCMeta):
+    @abstractmethod
+    def get_urls(self):
+        pass
+
+
+class RssProvider(AbstractProvider):
     def __init__(self, spec, cache=NullCache()):
         self.url = spec.get("url")
         self.namespaces = spec.get("namespaces", {})
@@ -70,8 +77,9 @@ class RssProvider:
         return result
 
 
-class HtmlProvider:
-    pass
+class HtmlProvider(AbstractProvider):
+    def get_urls(self):
+        pass
 
 
 def create_provider(specs, cache=NullCache()):
