@@ -35,7 +35,13 @@ class TestProviderFactory(unittest.TestCase):
 
     def test_create_rss_provider(self):
         spec = {
-            "type": "RssProvider"
+            "type": "RssProvider",
+            "url": "http://test/url",
+            "xpaths": {
+                "items": "//item",
+                "url": "//enclosure/@url",
+                "title": "//title"
+            },
         }
 
         provider = self.factory.create(spec)
@@ -44,7 +50,13 @@ class TestProviderFactory(unittest.TestCase):
 
     def test_create_html_provider(self):
         spec = {
-            "type": "HtmlProvider"
+            "type": "HtmlProvider",
+            "url": "http://test/url",
+            "xpaths": {
+                "items": "//item",
+                "url": "//enclosure/@url",
+                "title": "//title"
+            }
         }
 
         provider = self.factory.create(spec)

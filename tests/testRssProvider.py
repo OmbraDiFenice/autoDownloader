@@ -7,7 +7,7 @@ from tests.utils import get_standard_xml
 class TestRssProvider(unittest.TestCase):
     def setUp(self):
         self.spec = {
-            "type": "rss",
+            "type": "RssProvider",
             "url": "http://something/feed.xml",
             "xpaths": {
                 "items": "//item",
@@ -26,7 +26,7 @@ class TestRssProvider(unittest.TestCase):
 
     def test_default_parameters(self):
         minimal_spec = {
-            "type": "rss",
+            "type": "RssProvider",
             "url": "http://something/feed.xml",
             "xpaths": {
                 "items": "//item",

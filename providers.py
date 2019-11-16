@@ -2,9 +2,13 @@ from abc import ABCMeta, abstractmethod
 import requests
 import xml.etree.ElementTree as ElementTree
 import re
+from validators import SpecValidatorMixin
 
 
-class AbstractProvider(metaclass=ABCMeta):
+class AbstractProvider(SpecValidatorMixin, metaclass=ABCMeta):
+    def __init__(self, spec):
+        self._validate_spec(spec)
+
     @abstractmethod
     def get_urls(self):
         pass
@@ -12,6 +16,7 @@ class AbstractProvider(metaclass=ABCMeta):
 
 class RssProvider(AbstractProvider):
     def __init__(self, spec):
+        super().__init__(spec)
         self.url = spec.get("url")
         self.namespaces = spec.get("namespaces", {})
         self.items_xpath = spec.get("xpaths", {}).get("items", "")
@@ -71,6 +76,7 @@ class RssProvider(AbstractProvider):
 
 class HtmlProvider(AbstractProvider):
     def __init__(self, spec):
+        super().__init__(spec)
         pass
 
     def get_urls(self):
