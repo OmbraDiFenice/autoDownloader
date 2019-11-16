@@ -1,11 +1,12 @@
 import unittest
 from unittest.mock import patch
-from providers import RssProvider
 from tests.utils import get_standard_xml
+from factories import Factory
 
 
 class TestRssProvider(unittest.TestCase):
     def setUp(self):
+        self.factory = Factory("providers")
         self.spec = {
             "type": "RssProvider",
             "url": "http://something/feed.xml",
@@ -34,19 +35,19 @@ class TestRssProvider(unittest.TestCase):
                 "title": "//title"
             }
         }
-        provider = RssProvider(minimal_spec)
+        provider = self.factory.create(minimal_spec)
 
         self.assertEqual(provider.namespaces, {})
         self.assertEqual(provider.patterns, [".*"])
 
     def test_empty_pattern_list_defaults_to_match_all(self):
         self.spec["patterns"] = []
-        provider = RssProvider(self.spec)
+        provider = self.factory.create(self.spec)
 
         self.assertEqual(provider.patterns, [".*"])
 
     def test_create_provider(self):
-        provider = RssProvider(self.spec)
+        provider = self.factory.create(self.spec)
 
         self.assertEqual(provider.url, self.spec["url"])
         self.assertEqual(provider.namespaces, self.spec["namespaces"])
@@ -58,7 +59,7 @@ class TestRssProvider(unittest.TestCase):
     @patch("requests.get", return_value=get_standard_xml())
     def test_get_urls_with_default_pattern(self, get_mock):
         self.spec.pop("patterns")
-        provider = RssProvider(self.spec)
+        provider = self.factory.create(self.spec)
 
         urls = provider.get_urls()
 
@@ -70,7 +71,7 @@ class TestRssProvider(unittest.TestCase):
     @patch("requests.get", return_value=get_standard_xml())
     def test_get_urls_with_custom_pattern(self, get_mock):
         self.spec["patterns"] = ["cedar"]
-        provider = RssProvider(self.spec)
+        provider = self.factory.create(self.spec)
 
         urls = provider.get_urls()
 
