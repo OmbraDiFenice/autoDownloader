@@ -8,12 +8,14 @@ import xmlrpc.client
 class TestTorrentDownloader(unittest.TestCase):
     def test_init_parameter(self):
         spec_tcp = {
+            "type": "TorrentDownloader",
             "host": "http://192.168.1.50:80"
         }
         tcp_downloader = TorrentDownloader(spec_tcp)
         self.assertEqual(tcp_downloader.host, "http://192.168.1.50:80")
 
         spec_unix = {
+            "type": "TorrentDownloader",
             "host": "/tmp/rtorrent/rtorrent.sock"
         }
         unix_downloader = TorrentDownloader(spec_unix)
@@ -27,6 +29,7 @@ class TestTorrentDownloader(unittest.TestCase):
         dest = "tests/data/downloaders/dest_folder"
 
         spec = {
+            "type": "TorrentDownloader",
             "host": "http://192.168.1.50:80"
         }
         tcp_downloader = TorrentDownloader(spec)
