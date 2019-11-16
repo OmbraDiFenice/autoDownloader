@@ -26,12 +26,12 @@ class Factory:
         if "type" not in spec.keys():
             raise FactoryError("Unable to create object: type not defined")
 
-        available_caches = self._get_available_classes()
+        available_classes = self._get_available_classes()
 
-        new_cache_name = spec["type"]
-        for available_cache_name, cache_class in available_caches:
-            if available_cache_name == new_cache_name:
-                return cache_class(spec)
+        new_class_name = spec["type"]
+        for available_class_name, available_class in available_classes:
+            if available_class_name == new_class_name:
+                return available_class(spec)
 
         raise FactoryError("Unable to create object: type '{}' not known".format(spec["type"]))
 
