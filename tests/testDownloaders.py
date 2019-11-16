@@ -46,6 +46,7 @@ class TestTorrentDownloader(unittest.TestCase):
         dest = "tests/data/downloaders/dest_folder"
 
         spec = {
+            "type": "TorrentDownloader",
             "host": "/tmp/rtorrent/rtorrent.sock"
         }
         tcp_downloader = TorrentDownloader(spec)
