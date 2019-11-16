@@ -29,8 +29,10 @@ class AbstractCache(SpecValidatorMixin, metaclass=ABCMeta):
 
 
 class NullCache(AbstractCache):
-    def __init__(self, *args, **kwargs):
-        pass
+    def __init__(self, spec=None):
+        if spec is None:
+            spec = {"type": "NullCache"}
+        super().__init__(spec)
 
     def store(self, element):
         pass
