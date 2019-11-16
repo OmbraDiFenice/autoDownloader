@@ -21,9 +21,11 @@ class TestRssProvider(unittest.TestCase):
         }
 
     def assert_url_list_matches(self, urls, expected_urls):
-        urls.sort()
-        expected_urls.sort()
-        self.assertEqual(urls, expected_urls)
+        urls_sorted = urls.copy()
+        urls_sorted.sort()
+        expected_urls_sorted = expected_urls.copy()
+        expected_urls_sorted.sort()
+        self.assertEqual(urls_sorted, expected_urls_sorted)
 
     def test_default_parameters(self):
         minimal_spec = {
