@@ -4,7 +4,9 @@
   "$id": "http://example.com/root.json",
   "type": "object",
   "required": [
-    "type"
+    "type",
+    "url",
+    "xpath"
   ],
   "properties": {
     "type": {
@@ -13,6 +15,15 @@
       "enum": [
         "HtmlProvider"
       ]
+    },
+    "url": {
+      "$id": "#/properties/url",
+      "type": "string",
+      "format": "url"
+    },
+    "xpath": {
+      "$id": "#/properties/xpath",
+      "type": "string"
     }
   }
 }

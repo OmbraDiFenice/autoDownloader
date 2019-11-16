@@ -1,6 +1,6 @@
 import unittest
 from unittest.mock import patch
-from tests.utils import get_standard_xml
+from tests.utils import get_standard_xml, get_standard_html
 from factories import Factory
 
 
@@ -83,6 +83,39 @@ class TestRssProvider(unittest.TestCase):
             "https://processed/robots.torrent",
         ]
         get_mock.assert_called_once()
+        self.assert_url_list_matches(urls, expected_urls)
+
+
+class TestHtmlProvider(unittest.TestCase):
+    def setUp(self):
+        self.factory = Factory("providers")
+
+    def assert_url_list_matches(self, urls, expected_urls):
+        self.assertIsInstance(urls, (list, tuple))
+        self.assertIsInstance(expected_urls, (list, tuple))
+        urls_sorted = urls.copy()
+        urls_sorted.sort()
+        expected_urls_sorted = expected_urls.copy()
+        expected_urls_sorted.sort()
+        self.assertEqual(urls_sorted, expected_urls_sorted)
+
+    @patch("requests.get", return_value=get_standard_html())
+    def test_get_urls_according_to_xpath(self, get_mock):
+        spec = {
+            "type": "HtmlProvider",
+            "url": "http://my.awesome.site/page1",
+            "xpath": "//*[@id='post-271']/div/table/tbody/tr/td[2]/a/@href"
+        }
+        with open("tests/data/providers/html/sample_urls.txt", "r") as f:
+            expected_urls = [url.strip() for url in f.readlines()]
+
+        provider = self.factory.create(spec)
+
+        urls = provider.get_urls()
+
+        get_mock.assert_called_once()
+        self.assertEqual((spec["url"],), get_mock.call_args[0])
+
         self.assert_url_list_matches(urls, expected_urls)
 
 

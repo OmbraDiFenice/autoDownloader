@@ -3,6 +3,8 @@ import requests
 import xml.etree.ElementTree as ElementTree
 import re
 from validators import SpecValidatorMixin
+from lxml.etree import HTMLParser
+import lxml.etree
 
 
 class AbstractProvider(SpecValidatorMixin, metaclass=ABCMeta):
@@ -77,7 +79,22 @@ class RssProvider(AbstractProvider):
 class HtmlProvider(AbstractProvider):
     def __init__(self, spec):
         super().__init__(spec)
-        pass
+        self.url = spec["url"]
+        self.xpath = spec["xpath"]
+
+    def _get_html_content(self):
+        response = requests.get(self.url)
+        return response.text
+
+    def _get_urls_using_xpath(self, html, xpath):
+        root = self._parse_html(html)
+        return root.xpath(xpath)
+
+    @staticmethod
+    def _parse_html(html):
+        return lxml.etree.fromstring(html, parser=HTMLParser())
 
     def get_urls(self):
-        pass
+        html = self._get_html_content()
+        urls = self._get_urls_using_xpath(html, self.xpath)
+        return urls

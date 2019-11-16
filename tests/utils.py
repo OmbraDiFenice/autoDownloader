@@ -7,3 +7,11 @@ def get_standard_xml():
     response = requests.Response()
     response._content = xml
     return response
+
+
+def get_standard_html():
+    with open("tests/data/providers/html/sample.html", "rb") as f:
+        html = f.read()
+    response = requests.Response()
+    response._content = html
+    return response

@@ -52,11 +52,7 @@ class TestProviderFactory(unittest.TestCase):
         spec = {
             "type": "HtmlProvider",
             "url": "http://test/url",
-            "xpaths": {
-                "items": "//item",
-                "url": "//enclosure/@url",
-                "title": "//title"
-            }
+            "xpath": "//a/@href"
         }
 
         provider = self.factory.create(spec)
