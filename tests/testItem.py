@@ -14,7 +14,7 @@ class TestItem(unittest.TestCase):
     def setUp(self):
         cache_path = "tests/data/sample_cache"
         shutil.copyfile("tests/data/providers/rss/sample_cache", cache_path)
-        self.config = {
+        self.spec = {
             "dest_dir": "/home/myUser/downloads",
             "provider": {
                 "type": "RssProvider",
@@ -40,7 +40,7 @@ class TestItem(unittest.TestCase):
                 "host": "http://192.168.1.50:80"
             }
         }
-        self.item = Item(self.config)
+        self.item = Item(self.spec)
 
     def tearDown(self):
         if os.path.isfile("tests/data/sample_cache"):
@@ -51,6 +51,15 @@ class TestItem(unittest.TestCase):
         self.assertIsInstance(self.item.provider, providers.RssProvider)
         self.assertIsInstance(self.item.cache, caches.FileCache)
         self.assertIsInstance(self.item.downloader, downloaders.TorrentDownloader)
+
+    def test_cache_defaults_to_null_cache(self):
+        spec = self.spec.copy()
+        del spec["cache"]
+        self.assertNotIn("cache", spec.keys())
+
+        item = Item(spec)
+
+        self.assertIsInstance(item.cache, caches.NullCache)
 
     @patch("requests.get", return_value=get_standard_xml())
     @patch("downloaders.TorrentDownloader")
@@ -90,7 +99,7 @@ class TestItem(unittest.TestCase):
 
         with self.subTest("cache is persisted on disk"):
             cache_factory = Factory("caches")
-            cache_from_file = cache_factory.create(self.config["cache"])
+            cache_from_file = cache_factory.create(self.spec["cache"])
             self.assert_urls_in_cache(cache_from_file, expected_cache_content)
 
     def assert_list_content_is_equivalent(self, list1, list2):

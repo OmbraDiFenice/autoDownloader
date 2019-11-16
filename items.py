@@ -1,29 +1,34 @@
 from factories import Factory
+from validators import SpecValidatorMixin
 
 
-class Item:
-    def __init__(self, config):
-        self.cache = self._init_cache(config)
-        self.provider = self._init_provider(config)
-        self.downloader = self._init_downloader(config)
-        self.dest_dir = config.get("dest_dir", ".")
+class Item(SpecValidatorMixin):
+    default_cache_spec = {
+        "type": "NullCache"
+    }
+
+    def __init__(self, spec):
+        self._validate_spec(spec)
+        self.cache = self._init_cache(spec)
+        self.provider = self._init_provider(spec)
+        self.downloader = self._init_downloader(spec)
+        self.dest_dir = spec.get("dest_dir", ".")
 
     @staticmethod
-    def _init_downloader(config):
+    def _init_downloader(spec):
         downloader_factory = Factory("downloaders")
-        downloader_spec = config["downloader"]
+        downloader_spec = spec["downloader"]
         return downloader_factory.create(downloader_spec)
 
     @staticmethod
-    def _init_provider(config):
+    def _init_provider(spec):
         provider_factory = Factory("providers")
-        provider_spec = config["provider"]
+        provider_spec = spec["provider"]
         return provider_factory.create(provider_spec)
 
-    @staticmethod
-    def _init_cache(config):
+    def _init_cache(self, spec):
         cache_factory = Factory("caches")
-        cache_spec = config["cache"]
+        cache_spec = spec.get("cache", self.default_cache_spec)
         return cache_factory.create(cache_spec)
 
     def _filter_urls_in_cache(self, urls):

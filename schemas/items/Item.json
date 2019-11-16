@@ -1,0 +1,29 @@
+{
+  "definitions": {},
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "http://example.com/root.json",
+  "type": "object",
+  "required": [
+    "dest_dir",
+    "provider",
+    "downloader"
+  ],
+  "properties": {
+    "dest_dir": {
+      "$id": "#/properties/dest_dir",
+      "type": "string"
+    },
+    "provider": {
+      "$id": "#/properties/provider",
+      "type": "object"
+    },
+    "cache": {
+      "$id": "#/properties/cache",
+      "type": "object"
+    },
+    "downloader": {
+      "$id": "#/properties/downloader",
+      "type": "object"
+    }
+  }
+}
