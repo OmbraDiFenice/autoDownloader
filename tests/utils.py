@@ -17,13 +17,13 @@ def get_standard_html():
     return response
 
 
-def get_binary_file(name_in_header=True):
+def get_binary_file(name_in_header=True, filename="test_file.zip"):
     def inner_get_binary_file(url, *args, **kwargs):
         with open("tests/data/downloaders/sample_binary_data.zip", "rb") as f:
             data = f.read()
         response = requests.Response()
         if name_in_header:
-            response.headers["Content-disposition"] = "filename=test_file.zip"
+            response.headers["Content-disposition"] = "filename={}".format(filename)
         response.request = requests.PreparedRequest()
         response.request.url = url
         response._content = data

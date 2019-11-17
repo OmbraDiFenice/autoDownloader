@@ -37,7 +37,7 @@ class HttpDownloader(AbstractDownloader):
 
     def _get_file_name(self, response):
         content_disposition = response.headers.get("content-disposition", "")
-        match = re.findall(r"filename=([^\s]+)", content_disposition)
+        match = re.findall(r"filename=[\"']?([^\"']+)[\"']?", content_disposition)
         if not match:
             return self._extract_filename_from_request(response.request)
         return match[0]
