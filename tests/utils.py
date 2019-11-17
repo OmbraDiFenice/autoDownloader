@@ -15,3 +15,11 @@ def get_standard_html():
     response = requests.Response()
     response._content = html
     return response
+
+
+def get_binary_file(*args, **kwargs):
+    with open("tests/data/downloaders/sample_binary_data.zip", "rb") as f:
+        data = f.read()
+    response = requests.Response()
+    response._content = data
+    return response

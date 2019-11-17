@@ -3,6 +3,9 @@ import unittest
 from unittest.mock import patch
 from downloaders import TorrentDownloader
 import xmlrpc.client
+from factories import Factory
+import os.path
+from tests.utils import get_binary_file
 
 
 class TestTorrentDownloader(unittest.TestCase):
@@ -65,6 +68,35 @@ class TestTorrentDownloader(unittest.TestCase):
         expected_message = "{}:{},{}".format(len(header), header, data)
         encoded_expected_message = expected_message.encode("utf-8")
         mock_socket.return_value.send.assert_called_once_with(encoded_expected_message)
+
+
+class TestHttpDownloader(unittest.TestCase):
+    def setUp(self):
+        self.factory = Factory("downloaders")
+        self.dest_dir = "tests/data"
+        dest_file_name = "temp_filename"
+        self.dest_path = os.path.join(self.dest_dir, dest_file_name)
+
+    def tearDown(self):
+        if os.path.isfile(self.dest_path):
+            os.remove(self.dest_path)
+
+    @patch("requests.get", side_effect=get_binary_file)
+    @patch("requests.post")
+    def test_download_with_get(self, mock_post, mock_get):
+        spec = {
+            "type": "HttpDownloader",
+            "method": "GET"
+        }
+        downloader = self.factory.create(spec)
+
+        url = "http://test.url.com/test_file.zip"
+        downloader.download(url, self.dest_dir)
+
+        mock_post.assert_not_called()
+        mock_get.assert_called_once()
+
+        self.assertTrue(os.path.isfile(self.dest_path))
 
 
 if __name__ == '__main__':
