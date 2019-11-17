@@ -74,29 +74,61 @@ class TestHttpDownloader(unittest.TestCase):
     def setUp(self):
         self.factory = Factory("downloaders")
         self.dest_dir = "tests/data"
-        dest_file_name = "temp_filename"
+        dest_file_name = "test_file.zip"
         self.dest_path = os.path.join(self.dest_dir, dest_file_name)
 
     def tearDown(self):
         if os.path.isfile(self.dest_path):
             os.remove(self.dest_path)
 
-    @patch("requests.get", side_effect=get_binary_file)
-    @patch("requests.post")
-    def test_download_with_get(self, mock_post, mock_get):
-        spec = {
-            "type": "HttpDownloader",
-            "method": "GET"
-        }
-        downloader = self.factory.create(spec)
-
-        url = "http://test.url.com/test_file.zip"
-        downloader.download(url, self.dest_dir)
-
+    def assert_file_downloaded_through_get(self, mock_get, mock_post):
         mock_post.assert_not_called()
         mock_get.assert_called_once()
+        self.assert_downloaded_with_expected_filename()
 
+    def assert_downloaded_with_expected_filename(self):
         self.assertTrue(os.path.isfile(self.dest_path))
+
+    def assert_file_downloaded_through_post(self, mock_get, mock_post):
+        mock_get.assert_not_called()
+        mock_post.assert_called_once()
+        self.assert_downloaded_with_expected_filename()
+
+    def create_downloader(self, method):
+        self.assertIn(method, ["GET", "POST"])
+        spec = {
+            "type": "HttpDownloader",
+            "method": method
+        }
+        return self.factory.create(spec)
+
+    @patch("requests.get", side_effect=get_binary_file(name_in_header=True))
+    @patch("requests.post")
+    def test_download_with_get_filename_from_http_headers(self, mock_post, mock_get):
+        downloader = self.create_downloader("GET")
+        downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        self.assert_file_downloaded_through_get(mock_get, mock_post)
+
+    @patch("requests.get", side_effect=get_binary_file(name_in_header=False))
+    @patch("requests.post")
+    def test_download_with_get_filename_from_url(self, mock_post, mock_get):
+        downloader = self.create_downloader("GET")
+        downloader.download("http://test.url.com/test_file.zip", self.dest_dir)
+        self.assert_file_downloaded_through_get(mock_get, mock_post)
+
+    @patch("requests.get")
+    @patch("requests.post", side_effect=get_binary_file(name_in_header=True))
+    def test_download_with_post_filename_from_http_headers(self, mock_post, mock_get):
+        downloader = self.create_downloader("POST")
+        downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        self.assert_file_downloaded_through_post(mock_get, mock_post)
+
+    @patch("requests.get")
+    @patch("requests.post", side_effect=get_binary_file(name_in_header=False))
+    def test_download_with_post_filename_from_url(self, mock_post, mock_get):
+        downloader = self.create_downloader("POST")
+        downloader.download("http://test.url.com/test_file.zip", self.dest_dir)
+        self.assert_file_downloaded_through_post(mock_get, mock_post)
 
 
 if __name__ == '__main__':
