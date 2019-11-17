@@ -83,7 +83,7 @@ class HtmlProvider(AbstractProvider):
         self.xpath = spec["xpath"]
 
     def _get_html_content(self):
-        response = requests.get(self.url)
+        response = requests.get(self.url, verify=False)
         return response.text
 
     def _get_urls_using_xpath(self, html, xpath):
