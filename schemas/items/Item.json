@@ -1,5 +1,4 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "http://example.com/root.json",
   "type": "object",
@@ -24,6 +23,37 @@
     "downloader": {
       "$id": "#/properties/downloader",
       "type": "object"
+    },
+    "global_pre_script": {
+      "$id": "#/properties/global_pre_script",
+      "$ref": "#/definitions/script"
+    },
+    "global_post_script": {
+      "$id": "#/properties/global_post_script",
+      "$ref": "#/definitions/script"
+    },
+    "pre_download_script": {
+      "$id": "#/properties/pre_download_script",
+      "$ref": "#/definitions/script"
+    },
+    "post_download_script": {
+      "$id": "#/properties/post_download_script",
+      "$ref": "#/definitions/script"
+    }
+  },
+  "definitions": {
+    "script": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      ]
     }
   }
 }

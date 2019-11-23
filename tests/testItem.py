@@ -14,7 +14,7 @@ class TestItem(unittest.TestCase):
     def setUp(self):
         cache_path = "tests/data/sample_cache"
         shutil.copyfile("tests/data/providers/rss/sample_cache", cache_path)
-        self.spec = {
+        self.base_spec = {
             "dest_dir": "/home/myUser/downloads",
             "provider": {
                 "type": "RssProvider",
@@ -40,7 +40,11 @@ class TestItem(unittest.TestCase):
                 "host": "http://192.168.1.50:80"
             }
         }
-        self.item = Item(self.spec)
+        self.item = self.get_item(self.base_spec)
+
+    @staticmethod
+    def get_item(spec):
+        return Item(spec)
 
     def tearDown(self):
         if os.path.isfile("tests/data/sample_cache"):
@@ -48,12 +52,16 @@ class TestItem(unittest.TestCase):
 
     def test_create_from_config(self):
         self.assertEqual(self.item.dest_dir, "/home/myUser/downloads")
+        self.assertEqual(self.item.global_post_script, None)
+        self.assertEqual(self.item.global_pre_script, None)
+        self.assertEqual(self.item.pre_download_script, None)
+        self.assertEqual(self.item.post_download_script, None)
         self.assertIsInstance(self.item.provider, providers.RssProvider)
         self.assertIsInstance(self.item.cache, caches.FileCache)
         self.assertIsInstance(self.item.downloader, downloaders.TorrentDownloader)
 
     def test_cache_defaults_to_null_cache(self):
-        spec = self.spec.copy()
+        spec = self.base_spec.copy()
         del spec["cache"]
         self.assertNotIn("cache", spec.keys())
 
@@ -79,10 +87,8 @@ class TestItem(unittest.TestCase):
         self.assert_list_content_is_equivalent(actual_calls, expected_calls)
 
     @patch("requests.get", return_value=get_standard_xml())
-    @patch("downloaders.TorrentDownloader")
     @patch("socket.socket")
-    def test_cache_is_updated_after_download(self, mock_socket, mock_downloader, _):
-        self.item.downloader = mock_downloader
+    def test_cache_is_updated_after_download(self, mock_socket, _):
         mock_socket.return_value.recv.return_value = b''
 
         self.assertEqual(len(self.item.cache), 1)
@@ -99,8 +105,96 @@ class TestItem(unittest.TestCase):
 
         with self.subTest("cache is persisted on disk"):
             cache_factory = Factory("caches")
-            cache_from_file = cache_factory.create(self.spec["cache"])
+            cache_from_file = cache_factory.create(self.base_spec["cache"])
             self.assert_urls_in_cache(cache_from_file, expected_cache_content)
+
+    @patch("requests.get", return_value=get_standard_xml())
+    @patch("socket.socket")
+    @patch("subprocess.check_call")
+    def test_global_post_script_executed(self, mock_call, mock_socket, _):
+        spec = self.base_spec.copy()
+        spec["global_post_script"] = "ls -l"
+        item = self.get_item(spec)
+
+        self.assertEqual(item.global_post_script, ["ls", "-l"])
+
+        mock_socket.return_value.recv.return_value = b''
+
+        item.download_new_elements()
+
+        expected_calls = [call(["ls", "-l"], cwd=item.dest_dir, env=os.environ)]
+        actual_calls = mock_call.call_args_list
+        self.assert_list_content_is_equivalent(actual_calls, expected_calls)
+
+    @patch("requests.get", return_value=get_standard_xml())
+    @patch("socket.socket")
+    @patch("subprocess.check_call")
+    def test_global_pre_script_executed(self, mock_call, mock_socket, _):
+        spec = self.base_spec.copy()
+        spec["global_pre_script"] = ["ls", "some path"]
+        item = self.get_item(spec)
+
+        self.assertEqual(item.global_pre_script, ["ls", "some path"])
+
+        mock_socket.return_value.recv.return_value = b''
+
+        item.download_new_elements()
+
+        expected_calls = [call(["ls", "some path"], cwd=item.dest_dir, env=os.environ)]
+        actual_calls = mock_call.call_args_list
+        self.assert_list_content_is_equivalent(actual_calls, expected_calls)
+
+    @patch("requests.get", return_value=get_standard_xml())
+    @patch("socket.socket")
+    @patch("subprocess.check_call")
+    def test_pre_download_script_executed(self, mock_call, mock_socket, _):
+        spec = self.base_spec.copy()
+        spec["pre_download_script"] = "some_script"
+        item = self.get_item(spec)
+
+        self.assertEqual(item.pre_download_script, ["some_script"])
+
+        mock_socket.return_value.recv.return_value = b''
+
+        item.download_new_elements()
+
+        env_call_1 = os.environ.copy()
+        env_call_1["AUTODOWNLOADER_URL"] = "https://give/hello.torrent"
+        env_call_2 = os.environ.copy()
+        env_call_2["AUTODOWNLOADER_URL"] = "https://processed/robots.torrent"
+        expected_calls = [
+            call(["some_script"], cwd=item.dest_dir, env=env_call_1),
+            call(["some_script"], cwd=item.dest_dir, env=env_call_2)
+        ]
+        actual_calls = mock_call.call_args_list
+        self.assert_list_content_is_equivalent(actual_calls, expected_calls)
+
+    @patch("requests.get", return_value=get_standard_xml())
+    @patch("socket.socket")
+    @patch("subprocess.check_call")
+    def test_post_download_script_executed(self, mock_call, mock_socket, _):
+        spec = self.base_spec.copy()
+        spec["post_download_script"] = "some_script"
+        item = self.get_item(spec)
+
+        self.assertEqual(item.post_download_script, ["some_script"])
+
+        mock_socket.return_value.recv.return_value = b''
+
+        item.download_new_elements()
+
+        env_call_1 = os.environ.copy()
+        env_call_1["AUTODOWNLOADER_URL"] = "https://give/hello.torrent"
+        env_call_1["AUTODOWNLOADER_FILENAME"] = "hello.torrent"
+        env_call_2 = os.environ.copy()
+        env_call_2["AUTODOWNLOADER_URL"] = "https://processed/robots.torrent"
+        env_call_2["AUTODOWNLOADER_FILENAME"] = "robots.torrent"
+        expected_calls = [
+            call(["some_script"], cwd=item.dest_dir, env=env_call_1),
+            call(["some_script"], cwd=item.dest_dir, env=env_call_2)
+        ]
+        actual_calls = mock_call.call_args_list
+        self.assert_list_content_is_equivalent(actual_calls, expected_calls)
 
     def assert_list_content_is_equivalent(self, list1, list2):
         self.assertEqual(len(list1), len(list2))
