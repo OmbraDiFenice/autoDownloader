@@ -106,6 +106,6 @@ class LoggingItem(Item):
         if len(urls) == 0:
             logging.info("no new urls found: noting to be done")
         else:
-            logging.debug("{} urls remaining after the filtering".format(len(urls)))
+            logging.info("{} urls remaining after the filtering".format(len(urls)))
             logging.debug(urls)
         return urls
