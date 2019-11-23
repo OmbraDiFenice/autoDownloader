@@ -66,14 +66,10 @@ class Item(SpecValidatorMixin):
 
         env = self._extend_environment(**extra_env)
         script_expanded = self._expand_variables(script, env)
-        try:
-            print("executing script: {}".format(" ".join(script_expanded)))
-            subprocess.check_call(script_expanded, cwd=self.dest_dir, env=env)
-        except subprocess.CalledProcessError as ex:
-            print("Error during script: {}".format(script_expanded))
-            print("  return code is {}".format(ex.returncode))
+        return subprocess.call(script_expanded, cwd=self.dest_dir, env=env)
 
-    def _expand_variables(self, script, env):
+    @staticmethod
+    def _expand_variables(script, env):
         env_copy = os.environ.copy()
         os.environ.update(env)
         script_expanded = [os.path.expandvars(fragment) for fragment in script]

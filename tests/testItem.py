@@ -111,7 +111,7 @@ class TestItem(unittest.TestCase):
 
     @patch("requests.get", return_value=get_standard_xml())
     @patch("socket.socket")
-    @patch("subprocess.check_call")
+    @patch("subprocess.call")
     def test_global_post_script_executed(self, mock_call, mock_socket, _):
         spec = self.base_spec.copy()
         spec["global_post_script"] = "ls -l"
@@ -129,7 +129,7 @@ class TestItem(unittest.TestCase):
 
     @patch("requests.get", return_value=get_standard_xml())
     @patch("socket.socket")
-    @patch("subprocess.check_call")
+    @patch("subprocess.call")
     def test_global_pre_script_executed(self, mock_call, mock_socket, _):
         spec = self.base_spec.copy()
         spec["global_pre_script"] = ["ls", "some path"]
@@ -147,7 +147,7 @@ class TestItem(unittest.TestCase):
 
     @patch("requests.get", return_value=get_standard_xml())
     @patch("socket.socket")
-    @patch("subprocess.check_call")
+    @patch("subprocess.call")
     def test_pre_download_script_executed(self, mock_call, mock_socket, _):
         spec = self.base_spec.copy()
         spec["pre_download_script"] = "some_script"
@@ -172,7 +172,7 @@ class TestItem(unittest.TestCase):
 
     @patch("requests.get", return_value=get_standard_xml())
     @patch("socket.socket")
-    @patch("subprocess.check_call")
+    @patch("subprocess.call")
     def test_post_download_script_executed(self, mock_call, mock_socket, _):
         spec = self.base_spec.copy()
         spec["post_download_script"] = "some_script"
@@ -200,7 +200,7 @@ class TestItem(unittest.TestCase):
     @unittest.skipIf(platform.system() != "Windows", "Windows shell variable expansion not available on this platform")
     @patch("requests.get", return_value=get_standard_xml())
     @patch("socket.socket")
-    @patch("subprocess.check_call")
+    @patch("subprocess.call")
     def test_post_download_script_executed_with_windows_expanded_variables(self, mock_call, mock_socket, _):
         spec = self.base_spec.copy()
         spec["post_download_script"] = "some_script %AUTODOWNLOADER_FILENAME%"
