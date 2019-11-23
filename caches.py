@@ -1,11 +1,12 @@
 import os
 from abc import ABCMeta, abstractmethod
 from validators import SpecValidatorMixin
+import logging
 
 
 class AbstractCache(SpecValidatorMixin, metaclass=ABCMeta):
-    def __init__(self, spec):
-        self._validate_spec(spec)
+    def __init__(self, spec, instance_class=None):
+        self._validate_spec(spec, instance_class)
 
     @abstractmethod
     def store(self, element):
@@ -51,8 +52,8 @@ class NullCache(AbstractCache):
 
 
 class FileCache(AbstractCache):
-    def __init__(self, spec):
-        super().__init__(spec)
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
         self._list = []
         self.path = spec["path"]
         self._load()
@@ -79,3 +80,24 @@ class FileCache(AbstractCache):
 
     def __iter__(self):
         return self._list.__iter__()
+
+
+class LoggingFileCache(FileCache):
+    def __init__(self, spec):
+        super().__init__(spec, FileCache)
+
+    def _load(self):
+        logging.info("loading cache from {}".format(self.path))
+        return super()._load()
+
+    def store(self, element):
+        logging.debug("storing element {} in cache".format(element))
+        return super().store(element)
+
+    def clear(self):
+        logging.debug("clearing in-memory cache")
+        return super().clear()
+
+    def save(self):
+        logging.debug("saving in-memory cache to file {}".format(self.path))
+        return super().save()
