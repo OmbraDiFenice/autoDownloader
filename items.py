@@ -99,3 +99,13 @@ class LoggingItem(Item):
             logging.warning("script {} failed, return code was: {}".format(script_str, return_code))
         else:
             logging.info("script {} terminated with return code 0".format(script_str, return_code))
+
+    def _filter_urls_in_cache(self, urls):
+        logging.debug("filtering urls excluding the cached ones...")
+        urls = super()._filter_urls_in_cache(urls)
+        if len(urls) == 0:
+            logging.info("no new urls found: noting to be done")
+        else:
+            logging.debug("{} urls remaining after the filtering".format(len(urls)))
+            logging.debug(urls)
+        return urls
