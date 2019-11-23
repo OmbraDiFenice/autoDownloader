@@ -4,11 +4,12 @@ from validators import SpecValidatorMixin
 import re
 import os
 import requests
+import logging
 
 
 class AbstractDownloader(SpecValidatorMixin, metaclass=ABCMeta):
-    def __init__(self, spec):
-        self._validate_spec(spec)
+    def __init__(self, spec, instance_class=None):
+        self._validate_spec(spec, instance_class)
 
     @abstractmethod
     def download(self, url, dest_dir):
@@ -28,8 +29,8 @@ class TorrentDownloader(AbstractDownloader):
 
 
 class HttpDownloader(AbstractDownloader):
-    def __init__(self, spec):
-        super().__init__(spec)
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
         self.method = spec["method"].upper()
 
     def _extract_filename_from_request(self, request):
@@ -58,3 +59,14 @@ class HttpDownloader(AbstractDownloader):
         with open(os.path.join(dest_dir, filename), "wb") as f:
             f.write(response.content)
         return filename
+
+
+class LoggingHttpDownloader(HttpDownloader):
+    def __init__(self, spec):
+        super().__init__(spec, HttpDownloader)
+
+    def download(self, url, dest_dir):
+        logging.info("starting download of {}, dest folder: {}".format(url, dest_dir))
+        file_name = super().download(url, dest_dir)
+        logging.info("download terminated, file saved as {}".format(file_name))
+        return file_name
