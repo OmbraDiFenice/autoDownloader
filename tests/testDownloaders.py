@@ -36,8 +36,9 @@ class TestTorrentDownloader(unittest.TestCase):
             "host": "http://192.168.1.50:80"
         }
         tcp_downloader = TorrentDownloader(spec)
-        tcp_downloader.download(url, dest)
+        file_name = tcp_downloader.download(url, dest)
 
+        self.assertEqual(file_name, "file.torrent")
         self.assert_xmlrpc_request_was_correct(mock_socket, ("192.168.1.50", 80), url, dest)
 
     @unittest.skipIf(platform.system() == "Windows", "Unix sockets not available on Windows")
@@ -53,8 +54,9 @@ class TestTorrentDownloader(unittest.TestCase):
             "host": "/tmp/rtorrent/rtorrent.sock"
         }
         tcp_downloader = TorrentDownloader(spec)
-        tcp_downloader.download(url, dest)
+        file_name = tcp_downloader.download(url, dest)
 
+        self.assertEqual(file_name, "file.torrent")
         self.assert_xmlrpc_request_was_correct(mock_socket, "/tmp/rtorrent/rtorrent.sock", url, dest)
 
     @staticmethod
@@ -108,7 +110,9 @@ class TestHttpDownloader(unittest.TestCase):
     @patch("requests.post")
     def test_download_quoted_filename_from_http_headers(self, mock_post, mock_get):
         downloader = self.create_downloader("GET")
-        downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        file_name = downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        expected_filename = "[DCFS] DC 100.zip"
+        self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_get(mock_get, mock_post)
         self.assert_downloaded_with_expected_filename(expected_filename='"[DCFS] DC 100.zip"')
 
@@ -116,33 +120,41 @@ class TestHttpDownloader(unittest.TestCase):
     @patch("requests.post")
     def test_download_with_get_filename_from_http_headers(self, mock_post, mock_get):
         downloader = self.create_downloader("GET")
-        downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        file_name = downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        expected_filename = self.dest_file_name
+        self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_get(mock_get, mock_post)
-        self.assert_downloaded_with_expected_filename()
+        self.assert_downloaded_with_expected_filename(expected_filename=expected_filename)
 
     @patch("requests.get", side_effect=get_binary_file(name_in_header=False))
     @patch("requests.post")
     def test_download_with_get_filename_from_url(self, mock_post, mock_get):
         downloader = self.create_downloader("GET")
-        downloader.download("http://test.url.com/test_file.zip", self.dest_dir)
+        file_name = downloader.download("http://test.url.com/test_file.zip", self.dest_dir)
+        expected_filename = "test_file.zip"
+        self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_get(mock_get, mock_post)
-        self.assert_downloaded_with_expected_filename()
+        self.assert_downloaded_with_expected_filename(expected_filename=expected_filename)
 
     @patch("requests.get")
     @patch("requests.post", side_effect=get_binary_file(name_in_header=True))
     def test_download_with_post_filename_from_http_headers(self, mock_post, mock_get):
         downloader = self.create_downloader("POST")
-        downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        file_name = downloader.download("http://test.url.com/test_not_file_name.zip", self.dest_dir)
+        expected_filename = self.dest_file_name
+        self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_post(mock_get, mock_post)
-        self.assert_downloaded_with_expected_filename()
+        self.assert_downloaded_with_expected_filename(expected_filename=expected_filename)
 
     @patch("requests.get")
     @patch("requests.post", side_effect=get_binary_file(name_in_header=False))
     def test_download_with_post_filename_from_url(self, mock_post, mock_get):
         downloader = self.create_downloader("POST")
-        downloader.download("http://test.url.com/test_file.zip", self.dest_dir)
+        file_name = downloader.download("http://test.url.com/test_file.zip", self.dest_dir)
+        expected_filename = "test_file.zip"
+        self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_post(mock_get, mock_post)
-        self.assert_downloaded_with_expected_filename()
+        self.assert_downloaded_with_expected_filename(expected_filename=expected_filename)
 
 
 if __name__ == '__main__':

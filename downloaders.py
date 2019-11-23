@@ -24,6 +24,7 @@ class TorrentDownloader(AbstractDownloader):
         method = "load.start"
         params = ("", url, "d.directory.set={}".format(dest_dir))
         send_xmlrpc(self.host, method, params)
+        return url.split("/")[-1]
 
 
 class HttpDownloader(AbstractDownloader):
@@ -56,3 +57,4 @@ class HttpDownloader(AbstractDownloader):
         filename = self._get_file_name(response)
         with open(os.path.join(dest_dir, filename), "wb") as f:
             f.write(response.content)
+        return filename
