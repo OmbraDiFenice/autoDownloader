@@ -8,6 +8,7 @@ import downloaders
 import providers
 from items import Item
 from factories import Factory
+import platform
 
 
 class TestItem(unittest.TestCase):
@@ -192,6 +193,34 @@ class TestItem(unittest.TestCase):
         expected_calls = [
             call(["some_script"], cwd=item.dest_dir, env=env_call_1),
             call(["some_script"], cwd=item.dest_dir, env=env_call_2)
+        ]
+        actual_calls = mock_call.call_args_list
+        self.assert_list_content_is_equivalent(actual_calls, expected_calls)
+
+    @unittest.skipIf(platform.system() != "Windows", "Windows shell variable expansion not available on this platform")
+    @patch("requests.get", return_value=get_standard_xml())
+    @patch("socket.socket")
+    @patch("subprocess.check_call")
+    def test_post_download_script_executed_with_windows_expanded_variables(self, mock_call, mock_socket, _):
+        spec = self.base_spec.copy()
+        spec["post_download_script"] = "some_script %AUTODOWNLOADER_FILENAME%"
+        item = self.get_item(spec)
+
+        self.assertEqual(item.post_download_script, ["some_script", "%AUTODOWNLOADER_FILENAME%"])
+
+        mock_socket.return_value.recv.return_value = b''
+
+        item.download_new_elements()
+
+        env_call_1 = os.environ.copy()
+        env_call_1["AUTODOWNLOADER_URL"] = "https://give/hello.torrent"
+        env_call_1["AUTODOWNLOADER_FILENAME"] = "hello.torrent"
+        env_call_2 = os.environ.copy()
+        env_call_2["AUTODOWNLOADER_URL"] = "https://processed/robots.torrent"
+        env_call_2["AUTODOWNLOADER_FILENAME"] = "robots.torrent"
+        expected_calls = [
+            call(["some_script", env_call_1["AUTODOWNLOADER_FILENAME"]], cwd=item.dest_dir, env=env_call_1),
+            call(["some_script", env_call_2["AUTODOWNLOADER_FILENAME"]], cwd=item.dest_dir, env=env_call_2)
         ]
         actual_calls = mock_call.call_args_list
         self.assert_list_content_is_equivalent(actual_calls, expected_calls)
