@@ -25,6 +25,8 @@ class SpecValidator:
 
 
 class SpecValidatorMixin:
-    def _validate_spec(self, spec):
-        validator = SpecValidator(self.__class__)
+    def _validate_spec(self, spec, instance_class=None):
+        if instance_class is None:
+            instance_class = self.__class__
+        validator = SpecValidator(instance_class)
         validator.validate(spec)

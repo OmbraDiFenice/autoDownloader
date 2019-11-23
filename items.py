@@ -3,6 +3,7 @@ from factories import Factory
 from validators import SpecValidatorMixin
 import re
 import os
+import logging
 
 
 class Item(SpecValidatorMixin):
@@ -10,8 +11,8 @@ class Item(SpecValidatorMixin):
         "type": "NullCache"
     }
 
-    def __init__(self, spec):
-        self._validate_spec(spec)
+    def __init__(self, spec, instance_class=None):
+        self._validate_spec(spec, instance_class)
         self.cache = self._init_cache(spec)
         self.provider = self._init_provider(spec)
         self.downloader = self._init_downloader(spec)
@@ -81,3 +82,20 @@ class Item(SpecValidatorMixin):
         extended_env = os.environ.copy()
         extended_env.update(extra_env)
         return extended_env
+
+
+class LoggingItem(Item):
+    def __init__(self, spec):
+        super().__init__(spec, Item)
+
+    def _run_script(self, script, **extra_env):
+        if script is None:
+            return
+
+        script_str = " ".join(script)
+        logging.info("running script {}".format(script_str))
+        return_code = super()._run_script(script, **extra_env)
+        if return_code != 0:
+            logging.warning("script {} failed, return code was: {}".format(script_str, return_code))
+        else:
+            logging.info("script {} terminated with return code 0".format(script_str, return_code))

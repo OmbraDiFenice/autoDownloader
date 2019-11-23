@@ -5,11 +5,12 @@ import re
 from validators import SpecValidatorMixin
 from lxml.etree import HTMLParser
 import lxml.etree
+import logging
 
 
 class AbstractProvider(SpecValidatorMixin, metaclass=ABCMeta):
-    def __init__(self, spec):
-        self._validate_spec(spec)
+    def __init__(self, spec, instance_class=None):
+        self._validate_spec(spec, instance_class)
 
     @abstractmethod
     def get_urls(self):
@@ -77,8 +78,8 @@ class RssProvider(AbstractProvider):
 
 
 class HtmlProvider(AbstractProvider):
-    def __init__(self, spec):
-        super().__init__(spec)
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
         self.url = spec["url"]
         self.xpath = spec["xpath"]
 
@@ -97,4 +98,19 @@ class HtmlProvider(AbstractProvider):
     def get_urls(self):
         html = self._get_html_content()
         urls = self._get_urls_using_xpath(html, self.xpath)
+        return urls
+
+
+class LoggingHtmlProvider(HtmlProvider):
+    def __init__(self, spec):
+        super().__init__(spec, HtmlProvider)
+
+    def _get_html_content(self):
+        logging.info("fetching content from url {}".format(self.url))
+        return super()._get_html_content()
+
+    def _get_urls_using_xpath(self, html, xpath):
+        urls = super()._get_urls_using_xpath(html, xpath)
+        logging.info("found a total of {} urls".format(len(urls)))
+        logging.debug(urls)
         return urls
