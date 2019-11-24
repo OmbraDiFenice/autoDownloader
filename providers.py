@@ -18,8 +18,8 @@ class AbstractProvider(SpecValidatorMixin, metaclass=ABCMeta):
 
 
 class RssProvider(AbstractProvider):
-    def __init__(self, spec):
-        super().__init__(spec)
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
         self.url = spec.get("url")
         self.namespaces = spec.get("namespaces", {})
         self.items_xpath = spec.get("xpaths", {}).get("items", "")
@@ -114,3 +114,29 @@ class LoggingHtmlProvider(HtmlProvider):
         logging.info("found a total of {} urls".format(len(urls)))
         logging.debug(urls)
         return urls
+
+
+class LoggingRssProvider(RssProvider):
+    def __init__(self, spec):
+        super().__init__(spec, RssProvider)
+
+    def _get_xml(self):
+        logging.info("fetching RSS xml from {}".format(self.url))
+        return super()._get_xml()
+
+    def _get_item_list(self, root):
+        item_list = super()._get_item_list(root)
+        logging.info("found a total of {} items".format(len(item_list)))
+        return item_list
+
+    def _filter_items_by_title(self, items):
+        logging.info("filtering items on the title element according to {}".format(self.items_xpath))
+        item_list = super()._filter_items_by_title(items)
+        logging.info("{} items remaining".format(len(item_list)))
+        logging.debug(item_list)
+        return item_list
+
+    def _get_url_list_from_item_list(self, items):
+        url_list = super()._get_url_list_from_item_list(items)
+        logging.debug("extracted url list: {}".format(url_list))
+        return url_list
