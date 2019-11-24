@@ -17,15 +17,22 @@ class AbstractDownloader(SpecValidatorMixin, metaclass=ABCMeta):
 
 
 class TorrentDownloader(AbstractDownloader):
-    def __init__(self, spec):
-        super().__init__(spec)
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
         self.host = spec["host"]
 
     def download(self, url, dest_dir):
         method = "load.start"
         params = ("", url, "d.directory.set={}".format(dest_dir))
-        send_xmlrpc(self.host, method, params)
+        self._start_torrent(method, params)
+        return self._get_torrent_name(url)
+
+    @staticmethod
+    def _get_torrent_name(url):
         return url.split("/")[-1]
+
+    def _start_torrent(self, method, params):
+        send_xmlrpc(self.host, method, params)
 
 
 class HttpDownloader(AbstractDownloader):
@@ -33,7 +40,8 @@ class HttpDownloader(AbstractDownloader):
         super().__init__(spec, instance_class)
         self.method = spec["method"].upper()
 
-    def _extract_filename_from_request(self, request):
+    @staticmethod
+    def _extract_filename_from_request(request):
         url = request.path_url
         return url.split("/")[-1]
 
@@ -70,3 +78,16 @@ class LoggingHttpDownloader(HttpDownloader):
         file_name = super().download(url, dest_dir)
         logging.info("download terminated, file saved as {}".format(file_name))
         return file_name
+
+
+class LoggingTorrentDownloader(TorrentDownloader):
+    def __init__(self, spec):
+        super().__init__(spec, TorrentDownloader)
+
+    def _start_torrent(self, method, params):
+        logging.debug("enqueuing torrent; method: {}, params: {}".format(method, params))
+        return super()._start_torrent(method, params)
+
+    def download(self, url, dest_dir):
+        logging.info("starting download of {}, setting dest_dir to {}".format(url, dest_dir))
+        return super().download(url, dest_dir)
