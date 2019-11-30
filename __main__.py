@@ -25,6 +25,11 @@ log_conf = {
         }
     }
 }
+try:
+    with open("log_config.json", "r") as f:
+        log_conf = json.load(f)
+except IOError:
+    pass
 logging.config.dictConfig(log_conf)
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
