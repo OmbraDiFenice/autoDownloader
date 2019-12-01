@@ -14,7 +14,7 @@ class Factory:
 
     def __init__(self, module):
         self.module = module
-        self.__objects_cache__ = []
+        self.__objects_cache__ = []  # contains tuples in the form (spec, cls(spec))
 
     def _is_class_eligible(self, cls):
         base_class = self.mapping[self.module]
@@ -24,14 +24,13 @@ class Factory:
         return inspect.getmembers(sys.modules[self.module], self._is_class_eligible)
 
     def _get_or_create_instance(self, cls, spec):
-        new_obj = cls(spec)
-        cached_obj_list = [cached_obj for cached_obj in self.__objects_cache__ if new_obj == cached_obj]
+        cached_obj_list = [cached_obj for cached_obj in self.__objects_cache__ if spec == cached_obj[0]]
         if len(cached_obj_list) > 0:
-            del new_obj
-            return cached_obj_list[0]
+            return cached_obj_list[0][1]
         else:
-            self.__objects_cache__.append(new_obj)
-            return new_obj
+            tmp_obj = cls(spec)
+            self.__objects_cache__.append((spec, tmp_obj))
+            return tmp_obj
 
     def create(self, spec):
         if "type" not in spec.keys():
