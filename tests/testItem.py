@@ -226,7 +226,7 @@ class TestItem(unittest.TestCase):
         self.assert_list_content_is_equivalent(actual_calls, expected_calls)
 
     def assert_list_content_is_equivalent(self, list1, list2):
-        self.assertEqual(len(list1), len(list2))
+        self.assertEqual(len(list2), len(list1))
         for item in list1:
             self.assertIn(item, list2)
 
