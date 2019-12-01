@@ -24,14 +24,14 @@ class Factory:
         return inspect.getmembers(sys.modules[self.module], self._is_class_eligible)
 
     def _get_or_create_instance(self, cls, spec):
-        tmp_obj = cls(spec)
-        cached_obj_list = [obj for obj in self.__objects_cache__ if tmp_obj == obj]
+        new_obj = cls(spec)
+        cached_obj_list = [cached_obj for cached_obj in self.__objects_cache__ if new_obj == cached_obj]
         if len(cached_obj_list) > 0:
-            del tmp_obj
+            del new_obj
             return cached_obj_list[0]
         else:
-            self.__objects_cache__.append(tmp_obj)
-            return tmp_obj
+            self.__objects_cache__.append(new_obj)
+            return new_obj
 
     def create(self, spec):
         if "type" not in spec.keys():
