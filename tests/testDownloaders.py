@@ -64,7 +64,7 @@ class TestTorrentDownloader(unittest.TestCase):
         mock_socket.return_value.connect.assert_called_once_with(host)
         mock_socket.return_value.close.assert_called_once()
         method = "load.start"
-        params = (method, "''", url, 'd.directory.set="{}"'.format(dest))
+        params = (method, "", url, 'd.directory.set="{}"'.format(dest))
         data = xmlrpc.client.dumps(params[1:], methodname=method)
         header = "CONTENT_LENGTH\x00{}\x00SCGI\x001\x00".format(len(data))
         expected_message = "{}:{},{}".format(len(header), header, data)
