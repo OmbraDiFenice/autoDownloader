@@ -81,9 +81,6 @@ class FileCache(AbstractCache):
     def __iter__(self):
         return self._list.__iter__()
 
-    def __eq__(self, other):
-        return isinstance(other, FileCache) and self.path == other.path
-
 
 class LoggingFileCache(FileCache):
     def __init__(self, spec):
