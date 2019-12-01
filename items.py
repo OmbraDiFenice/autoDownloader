@@ -11,7 +11,10 @@ class Item(SpecValidatorMixin):
         "type": "NullCache"
     }
 
-    def __init__(self, spec, instance_class=None):
+    def __init__(self, spec, instance_class=None, downloader_factory=Factory("downloaders"), provider_factory=Factory("providers"), cache_factory=Factory("caches")):
+        self.downloader_factory = downloader_factory
+        self.provider_factory = provider_factory
+        self.cache_factory = cache_factory
         self._validate_spec(spec, instance_class)
         self.cache = self._init_cache(spec)
         self.provider = self._init_provider(spec)
@@ -28,22 +31,17 @@ class Item(SpecValidatorMixin):
             return re.split(r"\s+", script)
         return script
 
-    @staticmethod
-    def _init_downloader(spec):
-        downloader_factory = Factory("downloaders")
+    def _init_downloader(self, spec):
         downloader_spec = spec["downloader"]
-        return downloader_factory.create(downloader_spec)
+        return self.downloader_factory.create(downloader_spec)
 
-    @staticmethod
-    def _init_provider(spec):
-        provider_factory = Factory("providers")
+    def _init_provider(self, spec):
         provider_spec = spec["provider"]
-        return provider_factory.create(provider_spec)
+        return self.provider_factory.create(provider_spec)
 
     def _init_cache(self, spec):
-        cache_factory = Factory("caches")
         cache_spec = spec.get("cache", self.default_cache_spec)
-        return cache_factory.create(cache_spec)
+        return self.cache_factory.create(cache_spec)
 
     def _filter_urls_in_cache(self, urls):
         return [url for url in urls if url not in self.cache]

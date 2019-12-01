@@ -45,7 +45,9 @@ class TestItem(unittest.TestCase):
 
     @staticmethod
     def get_item(spec):
-        return Item(spec)
+        # need to explicitly inject a new instance of cache factory to avoid the factory to reuse
+        # instances of cache objects created in other tests
+        return Item(spec, cache_factory=Factory("caches"))
 
     def tearDown(self):
         if os.path.isfile("tests/data/sample_cache"):
