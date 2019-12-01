@@ -40,5 +40,9 @@ with open(config_file, "r") as f:
 
 item_list = [items.LoggingItem(spec) for spec in config.get("items", [])]
 
+logging.info("start processing items")
+
 for item in item_list:
     item.download_new_elements()
+
+logging.info("done.")
