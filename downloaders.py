@@ -23,7 +23,7 @@ class TorrentDownloader(AbstractDownloader):
 
     def download(self, url, dest_dir):
         method = "load.start"
-        params = ("", url, "d.directory.set={}".format(dest_dir))
+        params = ("''", url, 'd.directory.set="{}"'.format(dest_dir))
         self._start_torrent(method, params)
         return self._get_torrent_name(url)
 
