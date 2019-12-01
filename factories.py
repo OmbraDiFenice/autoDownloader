@@ -28,9 +28,9 @@ class Factory:
         if len(cached_obj_list) > 0:
             return cached_obj_list[0][1]
         else:
-            tmp_obj = cls(spec)
-            self.__objects_cache__.append((spec, tmp_obj))
-            return tmp_obj
+            new_obj = cls(spec)
+            self.__objects_cache__.append((spec, new_obj))
+            return new_obj
 
     def create(self, spec):
         if "type" not in spec.keys():
