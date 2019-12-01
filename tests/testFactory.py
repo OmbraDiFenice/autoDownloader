@@ -90,6 +90,17 @@ class TestCacheFactory(unittest.TestCase):
 
         self.assertIsInstance(cache, NullCache)
 
+    def test_return_same_instance_if_already_created(self):
+        spec = {
+            "type": "FileCache",
+            "path": "test_cache"
+        }
+
+        cache1 = self.factory.create(spec)
+        cache2 = self.factory.create(spec)
+
+        self.assertIs(cache1, cache2)
+
 
 class TestDownloaderFactory(unittest.TestCase):
     def setUp(self):

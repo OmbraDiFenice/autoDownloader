@@ -14,6 +14,7 @@ class Factory:
 
     def __init__(self, module):
         self.module = module
+        self.__objects_cache__ = []
 
     def _is_class_eligible(self, cls):
         base_class = self.mapping[self.module]
@@ -21,6 +22,16 @@ class Factory:
 
     def _get_available_classes(self):
         return inspect.getmembers(sys.modules[self.module], self._is_class_eligible)
+
+    def _get_or_create_instance(self, cls, spec):
+        tmp_obj = cls(spec)
+        cached_obj_list = [obj for obj in self.__objects_cache__ if tmp_obj == obj]
+        if len(cached_obj_list) > 0:
+            del tmp_obj
+            return cached_obj_list[0]
+        else:
+            self.__objects_cache__.append(tmp_obj)
+            return tmp_obj
 
     def create(self, spec):
         if "type" not in spec.keys():
@@ -32,7 +43,7 @@ class Factory:
         for new_class_name in new_class_names:
             for available_class_name, available_class in available_classes:
                 if available_class_name == new_class_name:
-                    return available_class(spec)
+                    return self._get_or_create_instance(available_class, spec)
 
         raise FactoryError("Unable to create object: type '{}' not known".format(spec["type"]))
 
