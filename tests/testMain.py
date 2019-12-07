@@ -1,6 +1,8 @@
 import unittest
+import json
+from unittest.mock import patch
 import os
-from main import build_item_list
+from main import build_item_list, load_log_config
 
 
 class TestMain(unittest.TestCase):
@@ -70,6 +72,43 @@ class TestMain(unittest.TestCase):
         item_list = build_item_list(config)
 
         self.assertIs(item_list[0].cache, item_list[1].cache)
+
+    @patch("logging.config.dictConfig")
+    def test_load_default_log_configuration(self, mock_dict_config):
+        load_log_config("nonexistent_log_configuration.json")
+
+        default_log_config = {
+            'version': 1,
+            'formatters': {
+                'standard': {
+                    'format': '%(asctime)s - %(module)s:%(lineno)d - %(levelname)s - %(message)s'
+                }
+            },
+            'handlers': {
+                'console': {
+                    'level': 'DEBUG',
+                    'class': 'logging.StreamHandler',
+                    'formatter': 'standard'
+                }
+            },
+            'loggers': {
+                '': {
+                    'handlers': ['console'],
+                    'level': 'DEBUG'
+                }
+            }
+        }
+        mock_dict_config.assert_called_once_with(default_log_config)
+
+    @patch("logging.config.dictConfig")
+    def test_load_custom_log_configuration(self, mock_dict_config):
+        test_log_config = "tests/data/log_configuration.json"
+        load_log_config(test_log_config)
+
+        with open(test_log_config, "r")  as f:
+            expected_log_config = json.load(f)
+
+        mock_dict_config.assert_called_once_with(expected_log_config)
 
 
 if __name__ == '__main__':

@@ -9,8 +9,8 @@ def build_item_list(config):
     return [items.LoggingItem(spec) for spec in config.get("items", [])]
 
 
-if __name__ == "__main__":
-    log_conf = {
+def load_log_config(log_conf_file="log_config.json"):
+    default_log_conf = {
         'version': 1,
         'formatters': {
             'standard': {
@@ -32,17 +32,25 @@ if __name__ == "__main__":
         }
     }
     try:
-        with open("log_config.json", "r") as f:
+        with open(log_conf_file, "r") as f:
             log_conf = json.load(f)
+            logging.config.dictConfig(log_conf)
     except IOError:
-        pass
-    logging.config.dictConfig(log_conf)
+        logging.config.dictConfig(default_log_conf)
+        logging.warning("unable to load log config from '{}'".format(log_conf_file))
+
+
+def load_config(config_file="config.json"):
+    with open(config_file, "r") as f:
+        return json.load(f)
+
+
+if __name__ == "__main__":
+    load_log_config()
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    config_file = sys.argv[1] if len(sys.argv) > 1 else "config.json"
-    with open(config_file, "r") as f:
-        config = json.load(f)
+    config = load_config(sys.argv[1] if len(sys.argv) > 1 else "config.json")
 
     item_list = build_item_list(config)
 
