@@ -46,9 +46,12 @@ class Item(SpecValidatorMixin):
     def _filter_urls_in_cache(self, urls):
         return [url for url in urls if url not in self.cache]
 
-    def download_new_elements(self):
+    def get_urls_to_download(self):
         urls = self.provider.get_urls()
-        urls_to_download = self._filter_urls_in_cache(urls)
+        return self._filter_urls_in_cache(urls)
+
+    def download_new_elements(self):
+        urls_to_download = self.get_urls_to_download()
 
         self._run_script(self.global_pre_script)
         for url in urls_to_download:
