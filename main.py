@@ -62,12 +62,11 @@ if __name__ == "__main__":
     item_list = build_item_list(config)
     logging.info("start processing items")
 
+    if args.noDownload:
+        logging.warning("option --noDownload active: downloaders will not actually download anything, but caches "
+                        "will be updated as usual")
+
     for item in item_list:
-        if args.noDownload:
-            url_to_download = item.get_urls_to_download()
-            for url in url_to_download:
-                logging.debug("simulation download url: {}".format(url))
-        else:
-            item.download_new_elements()
+        item.download_new_elements(args.noDownload)
 
     logging.info("done.")

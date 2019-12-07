@@ -12,7 +12,7 @@ class AbstractDownloader(SpecValidatorMixin, metaclass=ABCMeta):
         self._validate_spec(spec, instance_class)
 
     @abstractmethod
-    def download(self, url, dest_dir):
+    def download(self, url, dest_dir, skip=False):
         pass
 
 
@@ -21,10 +21,11 @@ class TorrentDownloader(AbstractDownloader):
         super().__init__(spec, instance_class)
         self.host = spec["host"]
 
-    def download(self, url, dest_dir):
+    def download(self, url, dest_dir, skip=False):
         method = "load.start"
         params = ("", url, 'd.directory.set="{}"'.format(dest_dir))
-        self._start_torrent(method, params)
+        if not skip:
+            self._start_torrent(method, params)
         return self._get_torrent_name(url)
 
     @staticmethod
@@ -61,11 +62,12 @@ class HttpDownloader(AbstractDownloader):
         elif self.method == "POST":
             return requests.post(url, **common_options)
 
-    def download(self, url, dest_dir):
+    def download(self, url, dest_dir, skip=False):
         response = self._download(url)
         filename = self._get_file_name(response)
-        with open(os.path.join(dest_dir, filename), "wb") as f:
-            f.write(response.content)
+        if not skip:
+            with open(os.path.join(dest_dir, filename), "wb") as f:
+                f.write(response.content)
         return filename
 
 
@@ -73,9 +75,9 @@ class LoggingHttpDownloader(HttpDownloader):
     def __init__(self, spec):
         super().__init__(spec, HttpDownloader)
 
-    def download(self, url, dest_dir):
+    def download(self, url, dest_dir, skip=False):
         logging.info("starting download of {}, dest folder: {}".format(url, dest_dir))
-        file_name = super().download(url, dest_dir)
+        file_name = super().download(url, dest_dir, skip)
         logging.info("download terminated, file saved as {}".format(file_name))
         return file_name
 
@@ -88,6 +90,6 @@ class LoggingTorrentDownloader(TorrentDownloader):
         logging.debug("enqueuing torrent; method: {}, params: {}".format(method, params))
         return super()._start_torrent(method, params)
 
-    def download(self, url, dest_dir):
+    def download(self, url, dest_dir, skip=False):
         logging.info("starting download of {}, setting dest_dir to {}".format(url, dest_dir))
-        return super().download(url, dest_dir)
+        return super().download(url, dest_dir, skip)

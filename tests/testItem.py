@@ -85,7 +85,7 @@ class TestItem(unittest.TestCase):
             "https://give/hello.torrent",
             "https://processed/robots.torrent",
         ]
-        expected_calls = [call(args, self.item.dest_dir) for args in expected_args_list]
+        expected_calls = [call(args, self.item.dest_dir, False) for args in expected_args_list]
         actual_calls = mock_downloader.download.call_args_list
         self.assert_list_content_is_equivalent(actual_calls, expected_calls)
 
