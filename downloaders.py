@@ -16,6 +16,14 @@ class AbstractDownloader(SpecValidatorMixin, metaclass=ABCMeta):
         pass
 
 
+class NullDownloader(AbstractDownloader):
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
+
+    def download(self, url, dest_dir, skip=False):
+        return "fakeFile"
+
+
 class TorrentDownloader(AbstractDownloader):
     def __init__(self, spec, instance_class=None):
         super().__init__(spec, instance_class)
