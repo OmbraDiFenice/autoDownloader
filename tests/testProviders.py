@@ -119,5 +119,23 @@ class TestHtmlProvider(unittest.TestCase):
         self.assert_url_list_matches(urls, expected_urls)
 
 
+class TestFileProvider(unittest.TestCase):
+    def test_get_urls_from_specified_file(self):
+        spec = {
+            "type": "FileProvider",
+            "path": "tests/data/providers/file/source.txt"
+        }
+        provider = Factory("providers").create(spec)
+
+        expected_urls = [
+            "https://cdn.somedomain.com/elem_1.mp4",
+            "https://cdn.somedomain.com/elem_2.mp4"
+        ]
+
+        urls = provider.get_urls()
+
+        self.assertEqual(urls, expected_urls)
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -101,6 +101,16 @@ class HtmlProvider(AbstractProvider):
         return urls
 
 
+class FileProvider(AbstractProvider):
+    def __init__(self, spec, instance_class=None):
+        super().__init__(spec, instance_class)
+        self.path = spec["path"]
+
+    def get_urls(self):
+        with open(self.path, "r") as f:
+            return [url.strip() for url in f.readlines()]
+
+
 class LoggingHtmlProvider(HtmlProvider):
     def __init__(self, spec):
         super().__init__(spec, HtmlProvider)
