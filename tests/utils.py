@@ -27,6 +27,8 @@ def get_binary_file(name_in_header=True, filename="test_file.zip"):
         response.request = requests.PreparedRequest()
         response.request.url = url
         response._content = data
+        response.raw = open("tests/data/downloaders/sample_binary_data.zip", "rb")
+        response.close = lambda: response.raw.close()
         return response
     return inner_get_binary_file
 

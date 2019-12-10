@@ -66,16 +66,20 @@ class HttpDownloader(AbstractDownloader):
             "verify": False
         }
         if self.method == "GET":
-            return requests.get(url, **common_options)
+            return requests.get(url, **common_options, stream=True)
         elif self.method == "POST":
-            return requests.post(url, **common_options)
+            return requests.post(url, **common_options, stream=True)
 
     def download(self, url, dest_dir, skip=False):
         if not skip:
             response = self._download(url)
             filename = self._get_file_name(response)
             with open(os.path.join(dest_dir, filename), "wb") as f:
-                f.write(response.content)
+                for chunk in response.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+                        f.flush()
+                response.close()
             return filename
         return "download skipped, no filename available"
 
