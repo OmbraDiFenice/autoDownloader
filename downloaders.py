@@ -71,12 +71,13 @@ class HttpDownloader(AbstractDownloader):
             return requests.post(url, **common_options)
 
     def download(self, url, dest_dir, skip=False):
-        response = self._download(url)
-        filename = self._get_file_name(response)
         if not skip:
+            response = self._download(url)
+            filename = self._get_file_name(response)
             with open(os.path.join(dest_dir, filename), "wb") as f:
                 f.write(response.content)
-        return filename
+            return filename
+        return "download skipped, no filename available"
 
 
 class LoggingHttpDownloader(HttpDownloader):

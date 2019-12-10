@@ -41,6 +41,25 @@ class TestTorrentDownloader(unittest.TestCase):
         self.assertEqual(file_name, "file.torrent")
         self.assert_xmlrpc_request_was_correct(mock_socket, ("192.168.1.50", 80), url, dest)
 
+    @patch("socket.socket")
+    def test_tcp_socket_not_called_if_skip_is_true(self, mock_socket):
+        mock_socket.return_value.recv.side_effect = [b'ok', b'']
+
+        url = "http://test.url.com/file.torrent"
+        dest = "tests/data/downloaders/dest_folder"
+
+        spec = {
+            "type": "TorrentDownloader",
+            "host": "http://192.168.1.50:80"
+        }
+        tcp_downloader = TorrentDownloader(spec)
+        tcp_downloader.download(url, dest, skip=True)
+
+        mock_socket.return_value.connect.assert_not_called()
+        mock_socket.return_value.send.assert_not_called()
+        mock_socket.return_value.recv.assert_not_called()
+        mock_socket.return_value.close.assert_not_called()
+
     @unittest.skipIf(platform.system() == "Windows", "Unix sockets not available on Windows")
     @patch("socket.socket")
     def test_call_unix_socket(self, mock_socket):
@@ -79,7 +98,7 @@ class TestHttpDownloader(unittest.TestCase):
         self.dest_file_name = "test_file.zip"
 
     def tearDown(self):
-        if os.path.isfile(self.dest_path):
+        if hasattr(self, "dest_path") and os.path.isfile(self.dest_path):
             os.remove(self.dest_path)
 
     def assert_file_downloaded_through_get(self, mock_get, mock_post):
@@ -135,6 +154,16 @@ class TestHttpDownloader(unittest.TestCase):
         self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_get(mock_get, mock_post)
         self.assert_downloaded_with_expected_filename(expected_filename=expected_filename)
+
+    @patch("requests.get", side_effect=get_binary_file(name_in_header=False))
+    @patch("requests.post")
+    def test_download_not_triggered_if_skip_is_true(self, mock_post, mock_get):
+        downloader = self.create_downloader("GET")
+        file_name = downloader.download("http://test.url.com/test_file.zip", self.dest_dir, skip=True)
+        expected_filename = "download skipped, no filename available"
+        self.assertEqual(file_name, expected_filename)
+        mock_get.assert_not_called()
+        mock_post.assert_not_called()
 
     @patch("requests.get")
     @patch("requests.post", side_effect=get_binary_file(name_in_header=True))
