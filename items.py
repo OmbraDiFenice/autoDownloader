@@ -19,6 +19,7 @@ class Item(SpecValidatorMixin):
         self.cache = self._init_cache(spec)
         self.provider = self._init_provider(spec)
         self.downloader = self._init_downloader(spec)
+        self.name = spec.get("name")
         self.dest_dir = spec.get("dest_dir", ".")
         self.global_pre_script = self._parse_script(spec.get("global_pre_script"))
         self.global_post_script = self._parse_script(spec.get("global_post_script"))
@@ -88,6 +89,11 @@ class Item(SpecValidatorMixin):
 class LoggingItem(Item):
     def __init__(self, spec):
         super().__init__(spec, Item)
+
+    def download_new_elements(self, skip_download=False):
+        logging.info("start processing item '{}'".format(self.name))
+        super().download_new_elements(skip_download=skip_download)
+        logging.info("end processing item '{}'".format(self.name))
 
     def _run_script(self, script, **extra_env):
         if script is None:

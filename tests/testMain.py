@@ -14,6 +14,7 @@ class TestMain(unittest.TestCase):
         config = {
             "items": [
                 {
+                    "name": "item 1",
                     "dest_dir": "/home/myUser/nas/item1",
                     "provider": {
                         "type": "RssProvider",
@@ -27,7 +28,7 @@ class TestMain(unittest.TestCase):
                             "title": "//title"
                         },
                         "patterns": [
-                            "Topic1"
+                            "Topic\\..*2\\."
                         ]
                     },
                     "cache": {
@@ -40,6 +41,7 @@ class TestMain(unittest.TestCase):
                     }
                 },
                 {
+                    "name": "item 2",
                     "dest_dir": "/home/myUser/nas/item2",
                     "provider": {
                         "type": "RssProvider",
@@ -53,8 +55,7 @@ class TestMain(unittest.TestCase):
                             "url": "/link"
                         },
                         "patterns": [
-                            "topic.*1",
-                            "topic\\..*9\\.*"
+                            "Chapter1"
                         ]
                     },
                     "cache": {

@@ -16,6 +16,7 @@ class TestItem(unittest.TestCase):
         cache_path = "tests/data/sample_cache"
         shutil.copyfile("tests/data/providers/rss/sample_cache", cache_path)
         self.base_spec = {
+            "name": "my item 1",
             "dest_dir": "/home/myUser/downloads",
             "provider": {
                 "type": "RssProvider",
@@ -54,6 +55,7 @@ class TestItem(unittest.TestCase):
             os.remove("tests/data/sample_cache")
 
     def test_create_from_config(self):
+        self.assertEqual(self.item.name, "my item 1")
         self.assertEqual(self.item.dest_dir, "/home/myUser/downloads")
         self.assertEqual(self.item.global_post_script, None)
         self.assertEqual(self.item.global_pre_script, None)

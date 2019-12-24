@@ -5,9 +5,14 @@
   "required": [
     "dest_dir",
     "provider",
-    "downloader"
+    "downloader",
+    "name"
   ],
   "properties": {
+    "name": {
+      "$id": "#/properties/name",
+      "type": "string"
+    },
     "dest_dir": {
       "$id": "#/properties/dest_dir",
       "type": "string"
