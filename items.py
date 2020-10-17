@@ -108,7 +108,7 @@ class LoggingItem(Item):
             logging.info("script {} terminated with return code 0".format(script_str, return_code))
 
     def _filter_urls_in_cache(self, urls):
-        logging.debug("filtering urls excluding the cached ones...")
+        logging.info("filtering urls excluding the cached ones...")
         urls = super()._filter_urls_in_cache(urls)
         if len(urls) == 0:
             logging.info("no new urls found: nothing to be done")
