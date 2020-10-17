@@ -1,10 +1,11 @@
 import os
 import unittest
 
-from caches import FileCache, NullCache
+from caches import FileCache, NullCache, LoggingFileCache
 
 
 class TestFileCache(unittest.TestCase):
+    CacheClass = FileCache
     spec_temp_file = {
         "type": "FileCache",
         "path": "test_file_cache"
@@ -15,37 +16,37 @@ class TestFileCache(unittest.TestCase):
     }
 
     def setUp(self):
-        self.delete_cache_file_is_exists()
+        self.delete_cache_file_if_exists()
 
     def tearDown(self):
-        self.delete_cache_file_is_exists()
+        self.delete_cache_file_if_exists()
 
-    def delete_cache_file_is_exists(self):
+    def delete_cache_file_if_exists(self):
         file = self.spec_temp_file["path"]
         if os.path.exists(file):
             os.remove(file)
 
     def test_create_file_cache(self):
-        FileCache(self.spec_temp_file)
+        self.CacheClass(self.spec_temp_file)
         self.assertTrue(os.path.isfile(self.spec_temp_file["path"]))
 
     def test_file_cache_is_empty_when_created(self):
-        cache = FileCache(self.spec_temp_file)
+        cache = self.CacheClass(self.spec_temp_file)
         self.assertEqual(len(cache), 0)
 
     def test_store_element(self):
-        cache = FileCache(self.spec_temp_file)
+        cache = self.CacheClass(self.spec_temp_file)
         cache.store("url1")
         self.assertEqual(len(cache), 1)
         self.assertTrue("url1" in cache)
 
     def test_cache_contains_data_from_file_when_created(self):
-        cache = FileCache(self.spec_file_with_data)
+        cache = self.CacheClass(self.spec_file_with_data)
         self.assertTrue("old url 1" in cache)
         self.assertTrue("another old url" in cache)
 
     def test_cache_is_emptied_when_clear_is_called(self):
-        cache = FileCache(self.spec_file_with_data)
+        cache = self.CacheClass(self.spec_file_with_data)
         self.assertGreater(len(cache), 0)
 
         cache.clear()
@@ -54,7 +55,7 @@ class TestFileCache(unittest.TestCase):
     def test_cache_is_persisted_on_file_when_save_is_called(self):
         spec = self.spec_temp_file
         new_elements = ["test url 1", "test url 2", "test url 3"]
-        cache = FileCache(spec)
+        cache = self.CacheClass(spec)
 
         self.store_elements_in_cache(cache, new_elements)
         cache.save()
@@ -71,6 +72,10 @@ class TestFileCache(unittest.TestCase):
             cache.store(line)
 
 
+class TestLoggingFileCache(TestFileCache):
+    CacheClass = LoggingFileCache
+
+
 class TestNullCache(unittest.TestCase):
     def setUp(self):
         self.cache = NullCache()
@@ -81,6 +86,14 @@ class TestNullCache(unittest.TestCase):
     def test_is_always_empty(self):
         self.cache.store("element")
         self.assertEqual(len(self.cache), 0)
+
+    def test_iterates_empty(self):
+        self.cache.store("something")
+        self.cache.store("something2")
+        iterated = 0
+        for _ in self.cache:
+            iterated += 1
+        self.assertEqual(0, iterated)
 
 
 if __name__ == '__main__':
