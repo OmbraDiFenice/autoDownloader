@@ -69,6 +69,8 @@ class HttpDownloader(AbstractDownloader):
             return requests.get(url, **common_options, stream=True)
         elif self.method == "POST":
             return requests.post(url, **common_options, stream=True)
+        else:
+            raise Exception("Invalid method: %s", self.method)
 
     def download(self, url, dest_dir, skip=False):
         if not skip:

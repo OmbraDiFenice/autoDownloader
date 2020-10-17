@@ -1,27 +1,29 @@
 import platform
 import unittest
 from unittest.mock import patch
-from downloaders import TorrentDownloader
+import downloaders
 import xmlrpc.client
-from factories import Factory
 import os.path
 from tests.utils import get_binary_file
+from jsonschema.exceptions import ValidationError
 
 
 class TestTorrentDownloader(unittest.TestCase):
+    DownloaderClass = downloaders.TorrentDownloader
+
     def test_init_parameter(self):
         spec_tcp = {
             "type": "TorrentDownloader",
             "host": "http://192.168.1.50:80"
         }
-        tcp_downloader = TorrentDownloader(spec_tcp)
+        tcp_downloader = self.DownloaderClass(spec_tcp)
         self.assertEqual(tcp_downloader.host, "http://192.168.1.50:80")
 
         spec_unix = {
             "type": "TorrentDownloader",
             "host": "/tmp/rtorrent/rtorrent.sock"
         }
-        unix_downloader = TorrentDownloader(spec_unix)
+        unix_downloader = self.DownloaderClass(spec_unix)
         self.assertEqual(unix_downloader.host, "/tmp/rtorrent/rtorrent.sock")
 
     @patch("socket.socket")
@@ -35,7 +37,7 @@ class TestTorrentDownloader(unittest.TestCase):
             "type": "TorrentDownloader",
             "host": "http://192.168.1.50:80"
         }
-        tcp_downloader = TorrentDownloader(spec)
+        tcp_downloader = self.DownloaderClass(spec)
         file_name = tcp_downloader.download(url, dest)
 
         self.assertEqual(file_name, "file.torrent")
@@ -52,7 +54,7 @@ class TestTorrentDownloader(unittest.TestCase):
             "type": "TorrentDownloader",
             "host": "http://192.168.1.50:80"
         }
-        tcp_downloader = TorrentDownloader(spec)
+        tcp_downloader = self.DownloaderClass(spec)
         tcp_downloader.download(url, dest, skip=True)
 
         mock_socket.return_value.connect.assert_not_called()
@@ -72,7 +74,7 @@ class TestTorrentDownloader(unittest.TestCase):
             "type": "TorrentDownloader",
             "host": "/tmp/rtorrent/rtorrent.sock"
         }
-        tcp_downloader = TorrentDownloader(spec)
+        tcp_downloader = self.DownloaderClass(spec)
         file_name = tcp_downloader.download(url, dest)
 
         self.assertEqual(file_name, "file.torrent")
@@ -91,9 +93,14 @@ class TestTorrentDownloader(unittest.TestCase):
         mock_socket.return_value.send.assert_called_once_with(encoded_expected_message)
 
 
+class TestLoggingTorrentDownloader(TestTorrentDownloader):
+    DownloaderClass = downloaders.LoggingTorrentDownloader
+
+
 class TestHttpDownloader(unittest.TestCase):
+    DownloaderClass = downloaders.HttpDownloader
+
     def setUp(self):
-        self.factory = Factory("downloaders")
         self.dest_dir = "tests/data"
         self.dest_file_name = "test_file.zip"
 
@@ -118,12 +125,14 @@ class TestHttpDownloader(unittest.TestCase):
         mock_post.assert_called_once()
 
     def create_downloader(self, method):
-        self.assertIn(method, ["GET", "POST"])
         spec = {
             "type": "HttpDownloader",
             "method": method
         }
-        return self.factory.create(spec)
+        return self.DownloaderClass(spec)
+
+    def test_download_with_wrong_method(self):
+        self.assertRaises(ValidationError, self.create_downloader, "UNSUPPORTED_METHOD")
 
     @patch("requests.get", side_effect=get_binary_file(name_in_header=True, filename='"[DCFS] DC 100.zip"'))
     @patch("requests.post")
@@ -184,6 +193,22 @@ class TestHttpDownloader(unittest.TestCase):
         self.assertEqual(file_name, expected_filename)
         self.assert_file_downloaded_through_post(mock_get, mock_post)
         self.assert_downloaded_with_expected_filename(expected_filename=expected_filename)
+
+
+class TestLoggingHttpDownloader(TestHttpDownloader):
+    DownloaderClass = downloaders.LoggingHttpDownloader
+
+
+class TestNullDownloader(unittest.TestCase):
+    def test_download(self):
+        downloader = downloaders.NullDownloader({"type": "NullDownloader"})
+        content = downloader.download("any url", "any dest")
+        self.assertEqual("fakeFile", content)
+
+    def test_download_if_skip_is_true(self):
+        downloader = downloaders.NullDownloader({"type": "NullDownloader"})
+        content = downloader.download("any url", "any dest", skip=True)
+        self.assertEqual("fakeFile", content)
 
 
 if __name__ == '__main__':
