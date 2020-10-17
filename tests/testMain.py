@@ -1,8 +1,9 @@
 import unittest
+import unittest.mock
 import json
-from unittest.mock import patch
 import os
-from main import build_item_list, load_log_config
+from main import build_item_list, load_log_config, load_config, download_all
+import items
 
 
 class TestMain(unittest.TestCase):
@@ -74,7 +75,7 @@ class TestMain(unittest.TestCase):
 
         self.assertIs(item_list[0].cache, item_list[1].cache)
 
-    @patch("logging.config.dictConfig")
+    @unittest.mock.patch("logging.config.dictConfig")
     def test_load_default_log_configuration(self, mock_dict_config):
         load_log_config("nonexistent_log_configuration.json")
 
@@ -101,15 +102,41 @@ class TestMain(unittest.TestCase):
         }
         mock_dict_config.assert_called_once_with(default_log_config)
 
-    @patch("logging.config.dictConfig")
+    @unittest.mock.patch("logging.config.dictConfig")
     def test_load_custom_log_configuration(self, mock_dict_config):
         test_log_config = "tests/data/log_configuration.json"
         load_log_config(test_log_config)
 
-        with open(test_log_config, "r")  as f:
+        with open(test_log_config, "r") as f:
             expected_log_config = json.load(f)
 
         mock_dict_config.assert_called_once_with(expected_log_config)
+
+    def test_load_config(self):
+        config = load_config("tests/data/test_config.json")
+        expected_config = {
+            "a_string": "string",
+            "an_int": 1,
+            "a_bool": True,
+            "a_null": None,
+            "an_array": [],
+            "an_object": {}
+        }
+        self.assertDictEqual(expected_config, config)
+
+    def test_download_all(self):
+        item_list = [unittest.mock.MagicMock(spec=items.Item),
+                     unittest.mock.MagicMock(spec=items.Item)]
+        download_all(item_list, skip=False)
+        for item in item_list:
+            item.download_new_elements.assert_called_once_with(False)
+
+    def test_download_all_with_skip(self):
+        item_list = [unittest.mock.MagicMock(spec=items.Item),
+                     unittest.mock.MagicMock(spec=items.Item)]
+        download_all(item_list, skip=True)
+        for item in item_list:
+            item.download_new_elements.assert_called_once_with(True)
 
 
 if __name__ == '__main__':

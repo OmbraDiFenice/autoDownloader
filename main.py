@@ -1,7 +1,6 @@
 import json
 import items
 import urllib3
-import sys
 import logging.config
 import argparse
 
@@ -46,6 +45,11 @@ def load_config(config_file="config.json"):
         return json.load(f)
 
 
+def download_all(item_list, skip=False):
+    for item in item_list:
+        item.download_new_elements(skip)
+
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--logConfig", default="log_config.json")
@@ -66,7 +70,6 @@ if __name__ == "__main__":
         logging.warning("option --noDownload active: downloaders will not actually download anything, but caches "
                         "will be updated as usual")
 
-    for item in item_list:
-        item.download_new_elements(args.noDownload)
+    download_all(item_list, skip=args.noDownload)
 
     logging.info("done.")
