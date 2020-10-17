@@ -87,8 +87,8 @@ class Item(SpecValidatorMixin):
 
 
 class LoggingItem(Item):
-    def __init__(self, spec):
-        super().__init__(spec, Item)
+    def __init__(self, spec, *args, **kwargs):
+        super().__init__(spec, Item, *args, **kwargs)
 
     def download_new_elements(self, skip_download=False):
         logging.info("start processing item '{}'".format(self.name))

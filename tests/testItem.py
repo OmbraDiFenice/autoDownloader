@@ -6,12 +6,14 @@ from tests.utils import get_standard_xml
 import caches
 import downloaders
 import providers
-from items import Item
+import items
 from factories import Factory
 import platform
 
 
 class TestItem(unittest.TestCase):
+    ItemClass = items.Item
+
     def setUp(self):
         cache_path = "tests/data/sample_cache"
         shutil.copyfile("tests/data/providers/rss/sample_cache", cache_path)
@@ -44,11 +46,10 @@ class TestItem(unittest.TestCase):
         }
         self.item = self.get_item(self.base_spec)
 
-    @staticmethod
-    def get_item(spec):
-        # need to explicitly inject a new instance of cache factory to avoid the factory to reuse
-        # instances of cache objects created in other tests
-        return Item(spec, cache_factory=Factory("caches"))
+    def get_item(self, spec):
+        # need to explicitly inject a new instance of cache factory to avoid the
+        # factory to reuse instances of cache objects created in other tests
+        return self.ItemClass(spec, cache_factory=Factory("caches"))
 
     def tearDown(self):
         if os.path.isfile("tests/data/sample_cache"):
@@ -70,7 +71,7 @@ class TestItem(unittest.TestCase):
         del spec["cache"]
         self.assertNotIn("cache", spec.keys())
 
-        item = Item(spec)
+        item = self.ItemClass(spec)
 
         self.assertIsInstance(item.cache, caches.NullCache)
 
@@ -240,6 +241,10 @@ class TestItem(unittest.TestCase):
         expected_cache_content_copy = expected_cache_content.copy()
         expected_cache_content_copy.sort()
         self.assertEqual(urls_in_cache, expected_cache_content_copy)
+
+
+class TestLoggingItem(TestItem):
+    ItemClass = items.LoggingItem
 
 
 if __name__ == '__main__':
