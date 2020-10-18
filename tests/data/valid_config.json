@@ -1,0 +1,106 @@
+{
+    "items": [
+        {
+            "name": "html provider, download over http, file cache",
+            "dest_dir": "/home/myUser/downloads",
+            "provider": {
+                "type": "HtmlProvider",
+                "url": "https://some/url/",
+                "xpath": "//*[@id='post-271']//table/tbody/tr/td[2]/a/@href"
+            },
+            "cache": {
+                "type": "FileCache",
+                "path": "/home/myUser/downloads/cache.txt"
+            },
+            "downloader": {
+                "type": "HttpDownloader",
+                "method": "GET"
+            },
+            "post_download_script": "/home/myUser/downloads/post_script.sh",
+            "global_post_script": "/home/myUser/downloads/global_post_script.sh"
+        },
+        {
+            "name": "rss provider, download over http, file cache",
+            "dest_dir": "/home/myUser/downloads",
+            "provider": {
+                "type": "RssProvider",
+                "url": "https://www.youtube.com/feeds/videos.xml?channel_id=UCbK6S8jFtYZ3UnPhWRIJ0bA",
+                "namespaces": {
+                    "ns": "http://www.myXmlNamespace.com"
+                },
+                "xpaths": {
+                    "title": "/title",
+                    "items": "//item",
+                    "url": "/link"
+                },
+                "patterns": [
+                    "title-filter"
+                ]
+            },
+            "cache": {
+                "type": "FileCache",
+                "path": "/home/myUser/downloads/cache.txt"
+            },
+            "downloader": {
+                "type": "HttpDownloader",
+                "method": "GET"
+            }
+        },
+        {
+            "name": "rss provider, download over torrent, no cache",
+            "dest_dir": "/home/myUser/downloads",
+            "provider": {
+                "type": "RssProvider",
+                "url": "https://www.some.url/rss",
+                "xpaths": {
+                    "title": "/title",
+                    "items": "//item",
+                    "url": "/link"
+                },
+                "patterns": [
+                    "topic1.*chapter1",
+                    "topic2.*chapter4"
+                ]
+            },
+            "downloader": {
+                "type": "TorrentDownloader",
+                "host": "/home/myUser/rtorrent/.session/.rtorrent.sock"
+            }
+        },
+        {
+            "name": "[part 1] html provider, prepare download through script, no cache",
+            "dest_dir": "/home/myUser/downloads",
+            "provider": {
+                "type": "HtmlProvider",
+                "url": "https://www.somewebsite.com",
+                "xpath": "//*[@id='content']//a/@href"
+            },
+            "cache": {
+                "type": "NullCache"
+            },
+            "downloader": {
+                "type": "NullDownloader"
+            },
+            "global_pre_script": "touch /home/myUser/downloads/list.txt",
+            "post_download_script": "python3.5 /home/myUser/downloads/build_url.py /home/myUser/downloads/list.txt"
+        },
+        {
+            "name": "[part 2] file provider, download over http, file cache",
+            "dest_dir": "/home/myUser/downloads",
+            "provider": {
+                "type": "FileProvider",
+                "path": "/home/myUser/downloads/list.txt"
+            },
+            "cache": {
+                "type": "FileCache",
+                "path": "/home/myUser/downloads/script_cache.txt"
+            },
+            "downloader": {
+                "type": "HttpDownloader",
+                "method": "GET"
+            },
+            "post_download_script": "python3.5 /home/myUser/downloads/script_downloader_post_download_script.py",
+            "global_post_script": "rm /home/myUser/downloads/list.txt"
+        }
+    ]
+}

@@ -1,7 +1,5 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://example.com/root.json",
   "type": "object",
   "required": [
     "type",
@@ -10,29 +8,24 @@
   ],
   "properties": {
     "type": {
-      "$id": "#/properties/type",
       "type": "string",
       "enum": [
         "RssProvider"
       ]
     },
     "url": {
-      "$id": "#/properties/url",
       "type": "string",
       "format": "url"
     },
     "namespaces": {
-      "$id": "#/properties/namespaces",
       "type": "object",
       "properties": {
         "tv": {
-          "$id": "#/properties/namespaces/properties/tv",
           "type": "string"
         }
       }
     },
     "xpaths": {
-      "$id": "#/properties/xpaths",
       "type": "object",
       "required": [
         "items",
@@ -41,24 +34,19 @@
       ],
       "properties": {
         "items": {
-          "$id": "#/properties/xpaths/properties/items",
           "type": "string"
         },
         "url": {
-          "$id": "#/properties/xpaths/properties/url",
           "type": "string"
         },
         "title": {
-          "$id": "#/properties/xpaths/properties/title",
           "type": "string"
         }
       }
     },
     "patterns": {
-      "$id": "#/properties/patterns",
       "type": "array",
       "items": {
-        "$id": "#/properties/patterns/items",
         "type": "string",
         "format": "regex"
       }

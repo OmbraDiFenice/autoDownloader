@@ -1,7 +1,5 @@
 {
-  "definitions": {},
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://example.com/root.json",
   "type": "object",
   "required": [
     "type",
@@ -9,17 +7,12 @@
   ],
   "properties": {
     "type": {
-      "$id": "#/properties/type",
       "type": "string",
       "enum": [
-        "FileCache"
-      ],
-      "examples": [
         "FileCache"
       ]
     },
     "path": {
-      "$id": "#/properties/path",
       "type": "string",
       "examples": [
         "cache/file/path"

@@ -1,6 +1,5 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "http://example.com/root.json",
   "type": "object",
   "required": [
     "dest_dir",
@@ -10,39 +9,41 @@
   ],
   "properties": {
     "name": {
-      "$id": "#/properties/name",
       "type": "string"
     },
     "dest_dir": {
-      "$id": "#/properties/dest_dir",
       "type": "string"
     },
     "provider": {
-      "$id": "#/properties/provider",
-      "type": "object"
+      "oneOf": [
+        { "$ref": "../providers/FileProvider.json" },
+        { "$ref": "../providers/HtmlProvider.json" },
+        { "$ref": "../providers/RssProvider.json" }
+      ]
     },
     "cache": {
-      "$id": "#/properties/cache",
-      "type": "object"
+      "oneOf": [
+        { "$ref": "../caches/FileCache.json" },
+        { "$ref": "../caches/NullCache.json" }
+      ]
     },
     "downloader": {
-      "$id": "#/properties/downloader",
-      "type": "object"
+      "oneOf": [
+        { "$ref": "../downloaders/HttpDownloader.json" },
+        { "$ref": "../downloaders/TorrentDownloader.json" },
+        { "$ref": "../downloaders/NullDownloader.json" }
+      ]
     },
     "global_pre_script": {
-      "$id": "#/properties/global_pre_script",
       "$ref": "#/definitions/script"
     },
     "global_post_script": {
-      "$id": "#/properties/global_post_script",
       "$ref": "#/definitions/script"
     },
     "pre_download_script": {
-      "$id": "#/properties/pre_download_script",
       "$ref": "#/definitions/script"
     },
     "post_download_script": {
-      "$id": "#/properties/post_download_script",
       "$ref": "#/definitions/script"
     }
   },

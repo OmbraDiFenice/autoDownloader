@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "required": [
+    "items"
+  ],
+  "properties": {
+    "items": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "$ref": "items/Item.json"
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import jsonschema
-import json
+import utils
 import inspect
 
 
@@ -20,8 +20,7 @@ class SpecValidator:
 
     def _get_schema(self):
         schema_file = self._get_schema_file_name()
-        with open(schema_file, "r") as f:
-            return json.load(f)
+        return utils.load_json_schema(schema_file)
 
 
 class SpecValidatorMixin:
