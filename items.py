@@ -52,19 +52,22 @@ class Item(SpecValidatorMixin):
         return self._filter_urls_in_cache(urls)
 
     def download_new_elements(self, skip_download=False):
-        urls_to_download = self.get_urls_to_download()
+        try:
+            urls_to_download = self.get_urls_to_download()
 
-        self._run_script(self.global_pre_script)
-        for url in urls_to_download:
-            try:
-                self._run_script(self.pre_download_script, AUTODOWNLOADER_URL=url)
-                file_name = self.downloader.download(url, self.dest_dir, skip_download)
-                self._run_script(self.post_download_script, AUTODOWNLOADER_URL=url, AUTODOWNLOADER_FILENAME=file_name)
-                self.cache.store(url)
-                self.cache.save()
-            except Exception as e:
-                logging.exception(e)
-        self._run_script(self.global_post_script)
+            self._run_script(self.global_pre_script)
+            for url in urls_to_download:
+                try:
+                    self._run_script(self.pre_download_script, AUTODOWNLOADER_URL=url)
+                    file_name = self.downloader.download(url, self.dest_dir, skip_download)
+                    self._run_script(self.post_download_script, AUTODOWNLOADER_URL=url, AUTODOWNLOADER_FILENAME=file_name)
+                    self.cache.store(url)
+                    self.cache.save()
+                except Exception as e:
+                    logging.exception(e)
+            self._run_script(self.global_post_script)
+        except Exception as e:
+            logging.exception(e)
 
     def _run_script(self, script, **extra_env):
         if script is None:
