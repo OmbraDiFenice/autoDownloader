@@ -56,11 +56,14 @@ class Item(SpecValidatorMixin):
 
         self._run_script(self.global_pre_script)
         for url in urls_to_download:
-            self._run_script(self.pre_download_script, AUTODOWNLOADER_URL=url)
-            file_name = self.downloader.download(url, self.dest_dir, skip_download)
-            self._run_script(self.post_download_script, AUTODOWNLOADER_URL=url, AUTODOWNLOADER_FILENAME=file_name)
-            self.cache.store(url)
-            self.cache.save()
+            try:
+                self._run_script(self.pre_download_script, AUTODOWNLOADER_URL=url)
+                file_name = self.downloader.download(url, self.dest_dir, skip_download)
+                self._run_script(self.post_download_script, AUTODOWNLOADER_URL=url, AUTODOWNLOADER_FILENAME=file_name)
+                self.cache.store(url)
+                self.cache.save()
+            except Exception as e:
+                logging.exception(e)
         self._run_script(self.global_post_script)
 
     def _run_script(self, script, **extra_env):

@@ -93,6 +93,19 @@ class TestItem(unittest.TestCase):
         self.assert_list_content_is_equivalent(actual_calls, expected_calls)
 
     @patch("requests.get", return_value=get_standard_xml())
+    @patch("downloaders.TorrentDownloader")
+    @patch("socket.socket")
+    def test_continue_with_next_url_on_error(self, mock_socket, mock_downloader, _):
+        self.item.downloader = mock_downloader
+        self.item.downloader.download.side_effect = [ConnectionRefusedError, get_standard_xml()]
+        mock_socket.return_value.recv.return_value = b''
+
+        self.item.download_new_elements()
+
+        actual_calls = mock_downloader.download.call_args_list
+        self.assertEqual(2, len(actual_calls))
+
+    @patch("requests.get", return_value=get_standard_xml())
     @patch("socket.socket")
     def test_cache_is_updated_after_download(self, mock_socket, _):
         mock_socket.return_value.recv.return_value = b''
