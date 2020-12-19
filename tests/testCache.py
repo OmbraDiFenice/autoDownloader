@@ -78,7 +78,7 @@ class TestLoggingFileCache(TestFileCache):
 
 class TestNullCache(unittest.TestCase):
     def setUp(self):
-        self.cache = NullCache()
+        self.cache = NullCache(None)
 
     def test_is_created_empty(self):
         self.assertEqual(len(self.cache), 0)

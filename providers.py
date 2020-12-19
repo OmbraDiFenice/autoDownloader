@@ -2,24 +2,19 @@ from abc import ABCMeta, abstractmethod
 import requests
 import xml.etree.ElementTree as ElementTree
 import re
-from validators import SpecValidatorMixin
 from lxml.etree import HTMLParser
 import lxml.etree
 import logging
 
 
-class AbstractProvider(SpecValidatorMixin, metaclass=ABCMeta):
-    def __init__(self, spec, instance_class=None):
-        self._validate_spec(spec, instance_class)
-
+class AbstractProvider(metaclass=ABCMeta):
     @abstractmethod
     def get_urls(self):
         pass
 
 
 class RssProvider(AbstractProvider):
-    def __init__(self, spec, instance_class=None):
-        super().__init__(spec, instance_class)
+    def __init__(self, spec):
         self.url = spec.get("url")
         self.namespaces = spec.get("namespaces", {})
         self.items_xpath = spec.get("xpaths", {}).get("items", "")
@@ -78,8 +73,7 @@ class RssProvider(AbstractProvider):
 
 
 class HtmlProvider(AbstractProvider):
-    def __init__(self, spec, instance_class=None):
-        super().__init__(spec, instance_class)
+    def __init__(self, spec):
         self.url = spec["url"]
         self.xpath = spec["xpath"]
 
@@ -102,8 +96,7 @@ class HtmlProvider(AbstractProvider):
 
 
 class FileProvider(AbstractProvider):
-    def __init__(self, spec, instance_class=None):
-        super().__init__(spec, instance_class)
+    def __init__(self, spec):
         self.path = spec["path"]
 
     def get_urls(self):
@@ -113,7 +106,7 @@ class FileProvider(AbstractProvider):
 
 class LoggingHtmlProvider(HtmlProvider):
     def __init__(self, spec):
-        super().__init__(spec, HtmlProvider)
+        super().__init__(spec)
 
     def _get_html_content(self):
         logging.info("fetching content from url {}".format(self.url))
@@ -128,7 +121,7 @@ class LoggingHtmlProvider(HtmlProvider):
 
 class LoggingRssProvider(RssProvider):
     def __init__(self, spec):
-        super().__init__(spec, RssProvider)
+        super().__init__(spec)
 
     def _get_xml(self):
         logging.info("fetching RSS xml from {}".format(self.url))

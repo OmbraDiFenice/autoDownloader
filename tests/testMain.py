@@ -4,6 +4,7 @@ import json
 import os
 from main import build_item_list, load_log_config, load_config, download_all
 import items
+from jsonschema.exceptions import ValidationError
 
 
 class TestMain(unittest.TestCase):
@@ -112,17 +113,53 @@ class TestMain(unittest.TestCase):
 
         mock_dict_config.assert_called_once_with(expected_log_config)
 
-    def test_load_config(self):
-        config = load_config("tests/data/test_config.json")
-        expected_config = {
-            "a_string": "string",
-            "an_int": 1,
-            "a_bool": True,
-            "a_null": None,
-            "an_array": [],
-            "an_object": {}
-        }
+    def test_load_valid_config(self):
+        config = load_config("tests/data/valid_config.json")
+        with open("tests/data/valid_config.json") as f:
+            expected_config = json.load(f)
+
         self.assertDictEqual(expected_config, config)
+
+    def test_load_invalid_config_http_method(self):
+        config_file = '''{
+            "items": [
+                {
+                    "name": "some name",
+                    "dest_dir": "some/dir",
+                    "downloader": {
+                        "type": "HttpDownloader",
+                        "method": "unsupported method"
+                    },
+                    "provider": {
+                        "type": "FileProvider",
+                        "path": "/some/path"
+                    }
+                }
+            ]
+        }'''
+        with unittest.mock.patch('main.open', unittest.mock.mock_open(read_data=config_file)):
+            self.assertRaises(ValidationError, load_config)
+
+    def test_load_invalid_config_empty_cache(self):
+        config_file = '''{
+            "items": [
+                {
+                    "name": "some name",
+                    "dest_dir": "some/dir",
+                    "downloader": {
+                        "type": "HttpDownloader",
+                        "method": "GET"
+                    },
+                    "cache": {},
+                    "provider": {
+                        "type": "FileProvider",
+                        "path": "/some/path"
+                    }
+                }
+            ]
+        }'''
+        with unittest.mock.patch('main.open', unittest.mock.mock_open(read_data=config_file)):
+            self.assertRaises(ValidationError, load_config)
 
     def test_download_all(self):
         item_list = [unittest.mock.MagicMock(spec=items.Item),

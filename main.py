@@ -3,6 +3,8 @@ import items
 import urllib3
 import logging.config
 import argparse
+import utils
+import jsonschema
 
 
 def build_item_list(config):
@@ -41,8 +43,11 @@ def load_log_config(log_conf_file):
 
 
 def load_config(config_file="config.json"):
+    schema = utils.load_json_schema("schemas/main.json")
     with open(config_file, "r") as f:
-        return json.load(f)
+        config = json.load(f)
+    jsonschema.validate(instance=config, schema=schema)
+    return config
 
 
 def download_all(item_list, skip=False):

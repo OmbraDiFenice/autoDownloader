@@ -131,9 +131,6 @@ class TestHttpDownloader(unittest.TestCase):
         }
         return self.DownloaderClass(spec)
 
-    def test_download_with_wrong_method(self):
-        self.assertRaises(ValidationError, self.create_downloader, "UNSUPPORTED_METHOD")
-
     @patch("requests.get", side_effect=get_binary_file(name_in_header=True, filename='"[DCFS] DC 100.zip"'))
     @patch("requests.post")
     def test_download_quoted_filename_from_http_headers(self, mock_post, mock_get):

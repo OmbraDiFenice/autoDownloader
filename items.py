@@ -1,21 +1,19 @@
 import subprocess
 from factories import Factory
-from validators import SpecValidatorMixin
 import re
 import os
 import logging
 
 
-class Item(SpecValidatorMixin):
+class Item:
     default_cache_spec = {
         "type": "NullCache"
     }
 
-    def __init__(self, spec, instance_class=None, downloader_factory=Factory("downloaders"), provider_factory=Factory("providers"), cache_factory=Factory("caches")):
+    def __init__(self, spec, downloader_factory=Factory("downloaders"), provider_factory=Factory("providers"), cache_factory=Factory("caches")):
         self.downloader_factory = downloader_factory
         self.provider_factory = provider_factory
         self.cache_factory = cache_factory
-        self._validate_spec(spec, instance_class)
         self.cache = self._init_cache(spec)
         self.provider = self._init_provider(spec)
         self.downloader = self._init_downloader(spec)
@@ -94,7 +92,7 @@ class Item(SpecValidatorMixin):
 
 class LoggingItem(Item):
     def __init__(self, spec, *args, **kwargs):
-        super().__init__(spec, Item, *args, **kwargs)
+        super().__init__(spec, *args, **kwargs)
 
     def download_new_elements(self, skip_download=False):
         logging.info("start processing item '{}'".format(self.name))
