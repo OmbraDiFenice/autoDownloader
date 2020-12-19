@@ -50,13 +50,24 @@ def download_all(item_list, skip=False):
         item.download_new_elements(skip)
 
 
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--logConfig", default="log_config.json")
-    parser.add_argument("--config", default="config.json")
-    parser.add_argument("-n", "--noDownload", action="store_true")
+def parse_arguments():
+    parser = argparse.ArgumentParser(
+        description="Simple downloader script. Check any source and download any new "
+                    "item found")
+    parser.add_argument("--logConfig", default="log_config.json",
+                        help="Specify the logging configuration file")
+    parser.add_argument("--config", default="config.json",
+                        help="Specify the downloader config file to use")
+    parser.add_argument("-n", "--noDownload", action="store_true",
+                        help="Skip the download step for any new content found, "
+                             "but still update the caches. This is useful to re-align "
+                             "the caches in case all the new items have been "
+                             "downloaded manually")
+    return parser.parse_args()
 
-    args = parser.parse_args()
+
+if __name__ == "__main__":
+    args = parse_arguments()
 
     load_log_config(args.logConfig)
     config = load_config(args.config)
@@ -67,8 +78,8 @@ if __name__ == "__main__":
     logging.info("start processing items")
 
     if args.noDownload:
-        logging.warning("option --noDownload active: downloaders will not actually download anything, but caches "
-                        "will be updated as usual")
+        logging.warning("option --noDownload active: downloaders will not actually "
+                        "download anything, but caches will be updated as usual")
 
     download_all(item_list, skip=args.noDownload)
 
