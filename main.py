@@ -7,7 +7,9 @@ import utils
 import jsonschema
 
 
-def build_item_list(config):
+def build_item_list(config, filters):
+    if filters:
+        return [items.LoggingItem(spec) for spec in config.get("items", []) if spec["name"] in filters]
     return [items.LoggingItem(spec) for spec in config.get("items", [])]
 
 
@@ -68,6 +70,10 @@ def parse_arguments():
                              "but still update the caches. This is useful to re-align "
                              "the caches in case all the new items have been "
                              "downloaded manually")
+    parser.add_argument("-f", "--filter", default=[], action="append",
+                        help="Only run the script for the items having the specified "
+                             "name. This option can be provided multiple times to "
+                             "filter by more than one item name")
     return parser.parse_args()
 
 
@@ -79,7 +85,7 @@ if __name__ == "__main__":
 
     urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    item_list = build_item_list(config)
+    item_list = build_item_list(config, args.filter)
     logging.info("start processing items")
 
     if args.noDownload:

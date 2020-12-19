@@ -72,9 +72,76 @@ class TestMain(unittest.TestCase):
             ]
         }
 
-        item_list = build_item_list(config)
+        item_list = build_item_list(config, [])
 
         self.assertIs(item_list[0].cache, item_list[1].cache)
+
+    def test_filter_items_from_config_by_name(self):
+        config = {
+            "items": [
+                {
+                    "name": "item 1",
+                    "dest_dir": "some/dest/dir",
+                    "provider": {
+                        "type": "FileProvider",
+                        "path": "some/path",
+                    },
+                    "downloader": {
+                        "type": "NullDownloader"
+                    }
+                },
+                {
+                    "name": "item 2",
+                    "dest_dir": "some/dest/dir",
+                    "provider": {
+                        "type": "FileProvider",
+                        "path": "some/path"
+                    },
+                    "downloader": {
+                        "type": "NullDownloader"
+                    }
+                },
+                {
+                    "name": "item3",
+                    "dest_dir": "some/dest/dir",
+                    "provider": {
+                        "type": "FileProvider",
+                        "path": "some/path"
+                    },
+                    "downloader": {
+                        "type": "NullDownloader"
+                    }
+                }
+            ]
+        }
+
+        with self.subTest("name with spaces"):
+            item_list = build_item_list(config, ["item 2"])
+
+            self.assertEqual(1, len(item_list))
+            self.assertEqual("item 2", item_list[0].name)
+
+        with self.subTest("name without spaces"):
+            item_list = build_item_list(config, ["item3"])
+
+            self.assertEqual(1, len(item_list))
+            self.assertEqual("item3", item_list[0].name)
+
+        with self.subTest("more than one filter"):
+            item_list = build_item_list(config, ["item 1", "item3"])
+
+            self.assertEqual(2, len(item_list))
+            self.assertIn("item 1", [item.name for item in item_list])
+            self.assertIn("item3", [item.name for item in item_list])
+
+        with self.subTest("no filters"):
+            item_list = build_item_list(config, [])
+            item_names = [item.name for item in item_list]
+
+            self.assertEqual(3, len(item_list))
+            self.assertIn("item 1", item_names)
+            self.assertIn("item 2", item_names)
+            self.assertIn("item3", item_names)
 
     @unittest.mock.patch("logging.config.dictConfig")
     def test_load_default_log_configuration(self, mock_dict_config):
