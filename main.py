@@ -78,20 +78,23 @@ def parse_arguments():
 
 
 if __name__ == "__main__":
-    args = parse_arguments()
+    try:
+        args = parse_arguments()
 
-    load_log_config(args.logConfig)
-    config = load_config(args.config)
+        load_log_config(args.logConfig)
+        config = load_config(args.config)
 
-    urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
-    item_list = build_item_list(config, args.filter)
-    logging.info("start processing items")
+        item_list = build_item_list(config, args.filter)
+        logging.info("start processing items")
 
-    if args.noDownload:
-        logging.warning("option --noDownload active: downloaders will not actually "
-                        "download anything, but caches will be updated as usual")
+        if args.noDownload:
+            logging.warning("option --noDownload active: downloaders will not actually "
+                            "download anything, but caches will be updated as usual")
 
-    download_all(item_list, skip=args.noDownload)
+        download_all(item_list, skip=args.noDownload)
+    except Exception as e:
+        logging.exception(e)
 
     logging.info("done.")
