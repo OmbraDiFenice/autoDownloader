@@ -1,0 +1,3 @@
+schemas/** linguist-vendored
+tests/data/** linguist-vendored
+external_libraries/* linguist-vendored
