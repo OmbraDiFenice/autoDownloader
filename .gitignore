@@ -1,6 +1,7 @@
 config.json
 log_config.json
 *.log.*
+node_modules/
 
 # Created by .ignore support plugin (hsz.mobi)
 ### JetBrains template

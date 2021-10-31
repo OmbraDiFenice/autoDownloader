@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/providers/HtmlProvider.json",
+  "title": "HTML provider",
+  "description": "Extract URLs from a given HTML web page using an XPath expression to find the link. Uses lxml for non-well formed HTML documents.",
   "type": "object",
   "required": [
     "type",
@@ -14,10 +17,12 @@
       ]
     },
     "url": {
+      "description": "URL of the web page containing the links to extract",
       "type": "string",
       "format": "url"
     },
     "xpath": {
+      "description": "XPath expression inside the HTML document pointed by the url parameter. Should return a link usable by the downloader later on",
       "type": "string"
     }
   }

@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/downloaders/HttpDownloader.json",
+  "title": "HTTP downloader",
+  "description": "Download URLs via a simple HTTP direct connection.",
   "type": "object",
   "required": [
     "type",
@@ -13,6 +16,7 @@
       ]
     },
     "method": {
+      "description": "The HTTP verb to use for download",
       "type": "string",
       "enum": [
         "POST",

@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/items/Item.json",
+  "title": "Download item",
+  "description": "Description of a download item and the options required to perform the download.",
   "type": "object",
   "required": [
     "dest_dir",
@@ -9,12 +12,18 @@
   ],
   "properties": {
     "name": {
+      "title": "Download item name",
+      "description": "User friendly name to refer to this download item.",
       "type": "string"
     },
     "dest_dir": {
+      "title": "Download directory",
+      "description": "Destination folder for the downloaded file.",
       "type": "string"
     },
     "provider": {
+      "title": "URL provider",
+      "description": "Which method to use to get the download URL. Choose among the supported ones.",
       "oneOf": [
         { "$ref": "../providers/FileProvider.json" },
         { "$ref": "../providers/HtmlProvider.json" },
@@ -22,12 +31,16 @@
       ]
     },
     "cache": {
+      "title": "Caching method",
+      "description": "As this script is meant to be run periodically, it can happen that the URL provider will return the same set of \"available\" URLs over and over. To avoid to trigger the download of the URLs that were already taken on the previous run a cache can be used. The downloader will skip any URL which is stored in the cache.",
       "oneOf": [
         { "$ref": "../caches/FileCache.json" },
         { "$ref": "../caches/NullCache.json" }
       ]
     },
     "downloader": {
+      "title": "Download method",
+      "description": "This is how you want to download each of the URLs returned by the Provider that needs downloading (i.e. that were not filtered by the cache).",
       "oneOf": [
         { "$ref": "../downloaders/HttpDownloader.json" },
         { "$ref": "../downloaders/TorrentDownloader.json" },
@@ -49,11 +62,17 @@
   },
   "definitions": {
     "script": {
+      "title": "Script",
+      "description": "A script to be executed on certain events. Can be used to hook into the execution and perform extra computation on the downloaded files. It can be specified as a single string or as a list of strings. Refer to https://docs.python.org/3.8/library/subprocess.html#subprocess.Popen",
       "oneOf": [
         {
+          "title": "Shell command",
+          "description": "A simple command string which will be passed to the default command line of the os",
           "type": "string"
         },
         {
+          "title": "Executable",
+          "description": "A list of strings where the first one indicates the absolute path to the program and the remaining are the parameters passed to it",
           "type": "array",
           "items": {
             "type": "string"

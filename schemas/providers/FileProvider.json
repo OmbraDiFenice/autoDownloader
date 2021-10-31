@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/providers/FileProvider.json",
+  "title": "File provider",
+  "description": "Read URLs from a text file, one per line. The file is not emptied, so on the next run the same URLs will be returned.",
   "type": "object",
   "required": [
     "type",
@@ -13,6 +16,7 @@
       ]
     },
     "path": {
+      "description": "Path to the file containing the URLs",
       "type": "string"
     }
   }

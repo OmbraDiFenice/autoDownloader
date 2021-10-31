@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/caches/FileCache.json",
+  "title": "File cache",
+  "description": "Caches URLs in a simple text file. Useful to easily tweak the content of the cache in case of errors or during the first test runs",
   "type": "object",
   "required": [
     "type",
@@ -13,6 +16,7 @@
       ]
     },
     "path": {
+      "description": "Path to the file used to store the cached URLs",
       "type": "string",
       "examples": [
         "cache/file/path"

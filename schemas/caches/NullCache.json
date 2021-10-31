@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/caches/NullCache.json",
+  "title": "Null cache",
+  "description": "Fake cache that doesn't cache anything. Use if you don't need caching.",
   "type": "object",
   "required": [
     "type"

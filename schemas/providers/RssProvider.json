@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/providers/RssProvider.json",
+  "title": "RSS provider",
+  "description": "Extracts links from an RSS feed. Can filter which RSS items to take into account using regular expressions on the title",
   "type": "object",
   "required": [
     "type",
@@ -14,10 +17,12 @@
       ]
     },
     "url": {
+      "description": "URL of the RSS feed. Should point to a standard RSS xml document",
       "type": "string",
       "format": "url"
     },
     "namespaces": {
+      "description": "mapping for the namespaces found in the RSS xml document. These are required for the XPath expression to work properly in case the elements mentioned in the expression are under a namespace",
       "type": "object",
       "properties": {
         "tv": {
@@ -26,6 +31,7 @@
       }
     },
     "xpaths": {
+      "description": "XPath expressions used to identify, filter and extract the url from the RSS feed",
       "type": "object",
       "required": [
         "items",
@@ -34,19 +40,33 @@
       ],
       "properties": {
         "items": {
-          "type": "string"
+          "description": "XPath locating all the items in the feed. The expression starts at the root of the RSS document",
+          "type": "string",
+          "examples": [
+            "//item"
+          ]
         },
         "url": {
-          "type": "string"
+          "description": "XPath locating the download URL inside each item. The path starts with the item at its root, as returned by the \"items\" XPath",
+          "type": "string",
+          "examples": [
+            "/link"
+          ]
         },
         "title": {
-          "type": "string"
+          "description": "XPath locating the title inside each item. The path starts with the item at its root, as returned by the \"items\" XPath",
+          "type": "string",
+          "examples": [
+            "/title"
+          ]
         }
       }
     },
     "patterns": {
+      "description": "list of regular expressions to match against the title of each RSS item. The corresponding URL will be passed to the downloader if any of these patterns match",
       "type": "array",
       "items": {
+        "description": "regular expression as supported by python 're' module. See https://docs.python.org/3.8/library/re.html",
         "type": "string",
         "format": "regex"
       }

@@ -1,11 +1,16 @@
 {
+  "$id": "https://example.com/autoDownloader/schemas/main.json",
+  "title": "Main configuration",
   "type": "object",
+  "default": {},
   "required": [
     "items"
   ],
   "properties": {
     "items": {
+      "title": "Download items list",
       "type": "array",
+      "default": [],
       "uniqueItems": true,
       "items": {
         "$ref": "items/Item.json"

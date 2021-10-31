@@ -1,5 +1,8 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.com/autoDownloader/schemas/downloaders/TorrentDownloader.json",
+  "title": "Torrent downloader",
+  "description": "Sends the download information to a running rTorrent client. You need to setup rTorrent yourself. The actual download is entirely managed by rTorrent",
   "type": "object",
   "required": [
     "type",
@@ -13,6 +16,7 @@
       ]
     },
     "host": {
+      "description": "Connection string to the rTorrent client. Can be the path to a Unix socket or an IP:port address, depending on how rTorrent is configured",
       "type": "string"
     }
   }
