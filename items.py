@@ -23,6 +23,7 @@ class Item:
         self.global_post_script = self._parse_script(spec.get("global_post_script"))
         self.pre_download_script = self._parse_script(spec.get("pre_download_script"))
         self.post_download_script = self._parse_script(spec.get("post_download_script"))
+        self.enabled = spec.get("enabled", True)
 
     @staticmethod
     def _parse_script(script):
@@ -50,6 +51,9 @@ class Item:
         return self._filter_urls_in_cache(urls)
 
     def download_new_elements(self, skip_download=False):
+        if not self.enabled:
+            return
+
         try:
             urls_to_download = self.get_urls_to_download()
 
@@ -96,6 +100,8 @@ class LoggingItem(Item):
 
     def download_new_elements(self, skip_download=False):
         logging.info("start processing item '{}'".format(self.name))
+        if not self.enabled:
+            logging.info("{} is disabled".format(self.name))
         super().download_new_elements(skip_download=skip_download)
         logging.info("end processing item '{}'".format(self.name))
 

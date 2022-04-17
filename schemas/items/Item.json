@@ -16,6 +16,12 @@
       "description": "User friendly name to refer to this download item.",
       "type": "string"
     },
+    "enabled": {
+      "title": "Item is enabled",
+      "description": "Set this to false to completely skip this item. It won't even run any pre/post script",
+      "type": "boolean",
+      "default": true
+    },
     "dest_dir": {
       "title": "Download directory",
       "description": "Destination folder for the downloaded file.",

@@ -101,6 +101,23 @@
             },
             "post_download_script": "python3.5 /home/myUser/downloads/script_downloader_post_download_script.py",
             "global_post_script": "rm /home/myUser/downloads/list.txt"
+        },
+        {
+            "name": "disabled item",
+            "enabled": false,
+            "dest_dir": "/home/myUser/downloads",
+            "provider": {
+                "type": "FileProvider",
+                "path": "/home/myUser/downloads/list.txt"
+            },
+            "cache": {
+                "type": "FileCache",
+                "path": "/home/myUser/downloads/script_cache.txt"
+            },
+            "downloader": {
+                "type": "HttpDownloader",
+                "method": "GET"
+            }
         }
     ]
 }

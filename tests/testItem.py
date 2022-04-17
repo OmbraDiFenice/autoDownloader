@@ -253,6 +253,23 @@ class TestItem(unittest.TestCase):
         actual_calls = mock_call.call_args_list
         self.assert_list_content_is_equivalent(actual_calls, expected_calls)
 
+    def test_item_defaults_to_enabled(self):
+        self.assertNotIn("enabled", self.base_spec)
+        self.assertTrue(self.item.enabled)
+
+    @patch("requests.get", return_value=get_standard_xml())
+    @patch("socket.socket")
+    def test_item_doesnt_download_anything_if_not_enabled(self, mock_socket, _):
+        spec = self.base_spec.copy()
+        spec["enabled"] = False
+        item = self.get_item(spec)
+
+        mock_socket.return_value.recv.return_value = b''
+
+        item.download_new_elements()
+
+        self.assertListEqual([], mock_socket.call_args_list)
+
     def assert_list_content_is_equivalent(self, list1, list2):
         self.assertEqual(len(list2), len(list1))
         for item in list1:

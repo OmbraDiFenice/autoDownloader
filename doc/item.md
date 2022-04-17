@@ -16,17 +16,18 @@ Description of a download item and the options required to perform the download.
 
 # Download item Properties
 
-| Property                                      | Type     | Required | Nullable       | Defined by                                                                                                                                |
-| :-------------------------------------------- | :------- | :------- | :------------- | :---------------------------------------------------------------------------------------------------------------------------------------- |
-| [name](#name)                                 | `string` | Required | cannot be null | [Download item](item-properties-download-item-name.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/name")      |
-| [dest_dir](#dest_dir)                         | `string` | Required | cannot be null | [Download item](item-properties-download-directory.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/dest_dir")  |
-| [provider](#provider)                         | Merged   | Required | cannot be null | [Download item](item-properties-url-provider.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/provider")        |
-| [cache](#cache)                               | Merged   | Optional | cannot be null | [Download item](item-properties-caching-method.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/cache")         |
-| [downloader](#downloader)                     | Merged   | Required | cannot be null | [Download item](item-properties-download-method.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/downloader")   |
-| [global_pre_script](#global_pre_script)       | Merged   | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/global_pre_script")    |
-| [global_post_script](#global_post_script)     | Merged   | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/global_post_script")   |
-| [pre_download_script](#pre_download_script)   | Merged   | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/pre_download_script")  |
-| [post_download_script](#post_download_script) | Merged   | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/post_download_script") |
+| Property                                      | Type      | Required | Nullable       | Defined by                                                                                                                                |
+| :-------------------------------------------- | :-------- | :------- | :------------- | :---------------------------------------------------------------------------------------------------------------------------------------- |
+| [name](#name)                                 | `string`  | Required | cannot be null | [Download item](item-properties-download-item-name.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/name")      |
+| [enabled](#enabled)                           | `boolean` | Optional | cannot be null | [Download item](item-properties-item-is-enabled.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/enabled")      |
+| [dest_dir](#dest_dir)                         | `string`  | Required | cannot be null | [Download item](item-properties-download-directory.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/dest_dir")  |
+| [provider](#provider)                         | Merged    | Required | cannot be null | [Download item](item-properties-url-provider.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/provider")        |
+| [cache](#cache)                               | Merged    | Optional | cannot be null | [Download item](item-properties-caching-method.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/cache")         |
+| [downloader](#downloader)                     | Merged    | Required | cannot be null | [Download item](item-properties-download-method.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/downloader")   |
+| [global_pre_script](#global_pre_script)       | Merged    | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/global_pre_script")    |
+| [global_post_script](#global_post_script)     | Merged    | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/global_post_script")   |
+| [pre_download_script](#pre_download_script)   | Merged    | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/pre_download_script")  |
+| [post_download_script](#post_download_script) | Merged    | Optional | cannot be null | [Download item](item-definitions-script.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/post_download_script") |
 
 ## name
 
@@ -45,6 +46,32 @@ User friendly name to refer to this download item.
 ### name Type
 
 `string` ([Download item name](item-properties-download-item-name.md))
+
+## enabled
+
+Set this to false to completely skip this item. It won't even run any pre/post script
+
+`enabled`
+
+*   is optional
+
+*   Type: `boolean` ([Item is enabled](item-properties-item-is-enabled.md))
+
+*   cannot be null
+
+*   defined in: [Download item](item-properties-item-is-enabled.md "https://example.com/autoDownloader/schemas/items/Item.json#/properties/enabled")
+
+### enabled Type
+
+`boolean` ([Item is enabled](item-properties-item-is-enabled.md))
+
+### enabled Default Value
+
+The default value is:
+
+```json
+true
+```
 
 ## dest_dir
 
