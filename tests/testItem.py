@@ -15,8 +15,8 @@ class TestItem(unittest.TestCase):
     ItemClass = items.Item
 
     def setUp(self):
-        cache_path = "tests/data/sample_cache"
-        shutil.copyfile("tests/data/providers/rss/sample_cache", cache_path)
+        self.cache_path = "tests/data/sample_cache"
+        shutil.copyfile("tests/data/providers/rss/sample_cache", self.cache_path)
         self.base_spec = {
             "name": "my item 1",
             "dest_dir": "/home/myUser/downloads",
@@ -37,7 +37,7 @@ class TestItem(unittest.TestCase):
             },
             "cache": {
                 "type": "FileCache",
-                "path": cache_path
+                "path": self.cache_path
             },
             "downloader": {
                 "type": "TorrentDownloader",
@@ -52,8 +52,8 @@ class TestItem(unittest.TestCase):
         return self.ItemClass(spec, cache_factory=Factory("caches"))
 
     def tearDown(self):
-        if os.path.isfile("tests/data/sample_cache"):
-            os.remove("tests/data/sample_cache")
+        if os.path.isfile(self.cache_path):
+            os.remove(self.cache_path)
 
     def test_create_from_config(self):
         self.assertEqual(self.item.name, "my item 1")
